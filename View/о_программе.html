@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О программе - Компиляторный редактор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.5;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9em;
+            margin: 15px 0 10px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        /* Контент */
+        .content {
+            padding: 30px;
+        }
+
+        /* Секции */
+        .section {
+            margin-bottom: 35px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 25px;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5em;
+            color: #2a5298;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1abc9c;
+        }
+
+        .section-title span {
+            font-size: 1.8em;
+        }
+
+        /* Инфо-блоки */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2a5298;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        /* Права */
+        .copyright-block {
+            background: #f0f4f8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .copyright-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .copyright-item:last-child {
+            border-bottom: none;
+        }
+
+        .copyright-icon {
+            font-size: 1.2em;
+            min-width: 30px;
+        }
+
+        .copyright-text {
+            color: #555;
+        }
+
+        .copyright-text strong {
+            color: #2c3e50;
+        }
+
+        /* Технические детали */
+        .tech-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .tech-badge {
+            background: #e8f4f8;
+            border-radius: 25px;
+            padding: 8px 18px;
+            font-size: 0.9em;
+            color: #2a5298;
+        }
+
+        .tech-badge strong {
+            color: #1abc9c;
+        }
+
+        /* Автор */
+        .author-card {
+            background: linear-gradient(135deg, #f5f7fa, #e8ecf1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .author-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .author-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        /* Благодарности */
+        .thanks-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .thanks-list li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .thanks-list li:before {
+            content: "🙏";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Предупреждения */
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .tip-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tip-list li {
+            padding: 6px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        .tip-list li:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Футер */
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .section-title {
+                font-size: 1.3em;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Компиляторный Редактор</h1>
+            <div class="version">Версия 1.0 (Версия для курсовой работы)</div>
+            <div class="subtitle">📘 Специализированный редактор для формальных языков · Теория компиляторов 1</div>
+        </div>
+
+        <div class="content">
+            <!-- Основная информация -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📋</span> Основная информация
+                </div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-label">🎯 Назначение</div>
+                        <div class="info-value">Специализированный текстовый редактор для работы с формальными языками и компиляторами</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">📚 Дисциплина</div>
+                        <div class="info-value">Теория формальных языков и компиляторов</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">🖥️ Платформа</div>
+                        <div class="info-value">Windows Forms (.NET Framework)</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">💻 Язык</div>
+                        <div class="info-value">C#</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">⚙️ Среда</div>
+                        <div class="info-value">Visual Studio</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">📦 .NET</div>
+                        <div class="info-value">4.7.2 или выше</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Авторские права -->
+            <div class="section">
+                <div class="section-title">
+                    <span>⚖️</span> Авторские права
+                </div>
+                <div class="copyright-block">
+                    <div class="copyright-item">
+                        <span class="copyright-icon">©</span>
+                        <span class="copyright-text"><strong>2025 Компиляторный Редактор</strong> — Все права защищены.</span>
+                    </div>
+                    <div class="copyright-item">
+                        <span class="copyright-icon">✅</span>
+                        <span class="copyright-text">Разрешается использование для <strong>учебных и некоммерческих целей</strong></span>
+                    </div>
+                    <div class="copyright-item">
+                        <span class="copyright-icon">🚫</span>
+                        <span class="copyright-text"><strong>Запрещено коммерческое использование</strong> без разрешения автора</span>
+                    </div>
+                    <div class="copyright-item">
+                        <span class="copyright-icon">📝</span>
+                        <span class="copyright-text">При использовании программы в учебных работах <strong>необходимо указывать авторство</strong></span>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 15px;">
+                    📘 Данная программа разработана в учебных целях для выполнения курсовой и лабораторных работ по дисциплине <strong>"Теория формальных языков и компиляторов"</strong>.
+                </div>
+            </div>
+
+            <!-- Технические детали -->
+            <div class="section">
+                <div class="section-title">
+                    <span>🛠️</span> Технические детали
+                </div>
+                <div class="tech-details">
+                    <span class="tech-badge"><strong>🖥️ Платформа:</strong> Windows Forms</span>
+                    <span class="tech-badge"><strong>🔧 Язык:</strong> C#</span>
+                    <span class="tech-badge"><strong>⚡ IDE:</strong> Visual Studio</span>
+                    <span class="tech-badge"><strong>📦 Требования:</strong> .NET Framework 4.7.2+</span>
+                    <span class="tech-badge"><strong>🏷️ Версия сборки:</strong> Release 1.0</span>
+                    <span class="tech-badge"><strong>📅 Дата сборки:</strong> 09.02.2026</span>
+                </div>
+            </div>
+
+            <!-- Автор -->
+            <div class="section">
+                <div class="section-title">
+                    <span>👨‍💻</span> Разработчик
+                </div>
+                <div class="author-card">
+                    <div class="author-name">Соболев Илья Олегович</div>
+                    <div>Студент АВТ-313</div>
+                    <div class="author-details">
+                        <div><strong>🏛️ Учебное заведение:</strong> Новосибирский государственный технический университет</div>
+                        <div><strong>🎓 Факультет:</strong> Автоматики и вычислительной техники</div>
+                        <div><strong>📚 Кафедра:</strong> Автоматизированных систем управления</div>
+                    </div>
+                </div>
+
+                <div class="author-card" style="margin-top: 15px;">
+                    <div class="author-name">👨‍🏫 Руководитель</div>
+                    <div><strong>Антонянц Егор Николаевич</strong></div>
+                    <div>Дисциплина: Теория формальных языков и компиляторов</div>
+                </div>
+
+                <div class="author-card" style="margin-top: 15px;">
+                    <div class="author-name">📬 Контакты для обратной связи</div>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>Обращайтесь к преподавателю дисциплины</li>
+                        <li>🗂️ Консультации в рамках занятий</li>
+                        <li>📲 Технические вопросы через систему управления обучением</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Благодарности -->
+            <div class="section">
+                <div class="section-title">
+                    <span>🙏</span> Благодарности
+                </div>
+                <ul class="thanks-list">
+                    <li>Преподавателю за методическое руководство</li>
+                    <li>Разработчикам .NET Framework и Visual Studio</li>
+                    <li>Авторам учебных материалов по теории формальных языков</li>
+                </ul>
+            </div>
+
+            <!-- Предупреждения -->
+            <div class="section">
+                <div class="section-title">
+                    <span>🛡️</span> as-is
+                </div>
+                <div class="warning-box">
+                    <strong>⚠️ Важно:</strong> Программа предоставляется "как есть". Автор не несет ответственности за любые потери данных или проблемы, возникшие в результате использования программы.
+                </div>
+                <ul class="tip-list">
+                    <li><strong>💾 Регулярно сохраняйте работу</strong> (Ctrl+S)</li>
+                    <li><strong>📂 Создавайте резервные копии</strong> важных файлов</li>
+                    <li><strong>🔄 Проверяйте наличие обновлений</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025–2026 Компиляторный Редактор · Курсовая работа</p>
+            <p>Соболев И.О., АВТ-313, НГТУ</p>
+        </div>
+    </div>
+</body>
+</html>

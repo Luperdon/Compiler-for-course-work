@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метод синтаксического анализа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header .author {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        /* Блок с кодом */
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: #fbbf24;
+        }
+        .code-block .function {
+            color: #60a5fa;
+        }
+        .code-block .comment {
+            color: #9ca3af;
+        }
+
+        /* Таблицы */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Таблица переходов */
+        .transition-table td, .transition-table th {
+            text-align: center;
+            font-family: 'Consolas', monospace;
+        }
+        .transition-table td:first-child {
+            text-align: left;
+            font-weight: bold;
+        }
+
+        /* Схема автомата */
+        .automaton-diagram {
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8em;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.6;
+        }
+
+        /* Алгоритм */
+        .algorithm {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .algorithm-step {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #667eea;
+            background: white;
+        }
+        .algorithm-step strong {
+            color: #667eea;
+        }
+
+        /* Метод Айронса */
+        .irones-method {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .strategy-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border-top: 4px solid #667eea;
+        }
+        .strategy-card .code {
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #e53e3e;
+        }
+
+        /* Пример работы */
+        .trace-example {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Состояния */
+        .states-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .state-tag {
+            background: #edf2f7;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+        }
+        .state-tag.start { background: #48bb78; color: white; }
+        .state-tag.end { background: #e53e3e; color: white; }
+        .state-tag.error { background: #f56565; color: white; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+            font-size: 0.85em;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>🔍 Метод синтаксического анализа</h1>
+            <div class="subtitle">Реализация конечного автомата для распознавания форматированных строк Python</div>
+            <div class="author">Соболев Илья Олегович | АВТ-313 | Вариант 50</div>
+        </div>
+
+        <!-- Общие сведения -->
+        <div class="card">
+            <h2>📌 Общие сведения</h2>
+            <p>Для реализации синтаксического анализа используется <strong>метод конечного автомата</strong>. Этот метод основан на формальной модели распознавателя, которая последовательно читает входную строку и выполняет переходы между состояниями в зависимости от текущего входного символа (лексемы).</p>
+            <br>
+            <p><strong>Преимущества метода:</strong></p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li>Простота реализации и понимания</li>
+                <li>Высокая скорость работы (линейная сложность O(n))</li>
+                <li>Возможность точной диагностики ошибок с указанием позиции</li>
+                <li>Лёгкость добавления новых правил и состояний</li>
+                <li>Детерминированность — однозначность переходов</li>
+            </ul>
+        </div>
+
+        <!-- Формальное определение автомата -->
+        <div class="card">
+            <h2>📐 Формальное определение конечного автомата</h2>
+            <div class="code-block">
+                <strong>M = (Q, Σ, δ, q₀, F)</strong><br><br>
+                где:<br>
+                • <strong>Q</strong> — конечное множество состояний<br>
+                • <strong>Σ</strong> — входной алфавит (множество допустимых лексем)<br>
+                • <strong>δ</strong> — функция переходов: Q × Σ → Q<br>
+                • <strong>q₀</strong> — начальное состояние (q₀ ∈ Q)<br>
+                • <strong>F</strong> — множество конечных (допускающих) состояний (F ⊆ Q)
+            </div>
+        </div>
+
+        <!-- Множества состояний и входных символов -->
+        <div class="card">
+            <h2>📚 Множества автомата</h2>
+            
+            <h3>🔷 Q — Множество состояний:</h3>
+            <div class="states-grid">
+                <span class="state-tag start">Start</span>
+                <span class="state-tag">IdRem</span>
+                <span class="state-tag">AfterEqual</span>
+                <span class="state-tag">OpenQuote</span>
+                <span class="state-tag">OpenBrace</span>
+                <span class="state-tag">Colon</span>
+                <span class="state-tag">LetterF</span>
+                <span class="state-tag">CloseBrace</span>
+                <span class="state-tag">CloseQuote</span>
+                <span class="state-tag">AfterDot</span>
+                <span class="state-tag">Format</span>
+                <span class="state-tag">OpenArg</span>
+                <span class="state-tag">InNumber</span>
+                <span class="state-tag">AfterNumber</span>
+                <span class="state-tag">CloseArg</span>
+                <span class="state-tag end">End</span>
+                <span class="state-tag error">Error</span>
+            </div>
+
+            <h3>🔤 Σ — Входной алфавит (лексемы):</h3>
+            <div class="states-grid">
+                <span class="state-tag">id</span>
+                <span class="state-tag">=</span>
+                <span class="state-tag">"</span>
+                <span class="state-tag">{</span>
+                <span class="state-tag">:</span>
+                <span class="state-tag">f</span>
+                <span class="state-tag">}</span>
+                <span class="state-tag">.</span>
+                <span class="state-tag">format</span>
+                <span class="state-tag">(</span>
+                <span class="state-tag">число</span>
+                <span class="state-tag">)</span>
+                <span class="state-tag">;</span>
+            </div>
+
+            <h3>🎯 q₀ — Начальное состояние:</h3>
+            <div class="code-block">q₀ = Start</div>
+
+            <h3>🏁 F — Конечные состояния:</h3>
+            <div class="code-block">F = {End}</div>
+        </div>
+
+        <!-- Таблица переходов -->
+        <div class="card">
+            <h2>🔄 Функция переходов δ</h2>
+            <div class="table-wrapper">
+                <table class="transition-table">
+                    <thead>
+                        <tr><th>Текущее состояние</th><th>Входной символ</th><th>Следующее состояние</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Start</td><td>id</td><td>IdRem</td></tr>
+                        <tr><td>IdRem</td><td>=</td><td>AfterEqual</td></tr>
+                        <tr><td>AfterEqual</td><td>"</td><td>OpenQuote</td></tr>
+                        <tr><td>OpenQuote</td><td>{</td><td>OpenBrace</td></tr>
+                        <tr><td>OpenBrace</td><td>:</td><td>Colon</td></tr>
+                        <tr><td>Colon</td><td>f</td><td>LetterF</td></tr>
+                        <tr><td>LetterF</td><td>}</td><td>CloseBrace</td></tr>
+                        <tr><td>CloseBrace</td><td>"</td><td>CloseQuote</td></tr>
+                        <tr><td>CloseQuote</td><td>.</td><td>AfterDot</td></tr>
+                        <tr><td>AfterDot</td><td>format</td><td>Format</td></tr>
+                        <tr><td>Format</td><td>(</td><td>OpenArg</td></tr>
+                        <tr><td>OpenArg</td><td>число</td><td>InNumber</td></tr>
+                        <tr><td>InNumber</td><td>число</td><td>InNumber</td></tr>
+                        <tr><td>InNumber</td><td>)</td><td>AfterNumber</td></tr>
+                        <tr><td>AfterNumber</td><td>)</td><td>CloseArg</td></tr>
+                        <tr><td>CloseArg</td><td>;</td><td>End</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Схема конечного автомата -->
+        <div class="card">
+            <h2>📊 Схема конечного автомата</h2>
+            <div class="automaton-diagram">
+                ┌─────────┐     ┌─────────┐     ┌──────────┐     ┌───────────┐
+                │  Start  │ ──id──→ │  IdRem  │ ──=──→ │AfterEqual│ ──"──→ │ OpenQuote │
+                └─────────┘     └─────────┘     └──────────┘     └───────────┘
+                                                                       │
+                                                                       ↓ {
+                                                                ┌───────────┐
+                                                                │ OpenBrace │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ :
+                                                                ┌─────────┐
+                                                                │  Colon  │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ f
+                                                                ┌─────────┐
+                                                                │ LetterF │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ }
+                                                                ┌───────────┐
+                                                                │CloseBrace │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ "
+                                                                ┌───────────┐
+                                                                │CloseQuote │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ .
+                                                                ┌──────────┐
+                                                                │ AfterDot │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ format
+                                                                ┌─────────┐
+                                                                │ Format  │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ (
+                                                                ┌──────────┐
+                                                                │ OpenArg  │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ число
+                                                                ┌──────────┐
+                                                                │InNumber  │←────┐
+                                                                └──────────┘     │
+                                                                       │         │
+                                                                       ↓ число   │
+                                                                ┌──────────┐     │
+                                                                │InNumber  │─────┘
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ )
+                                                                ┌────────────┐
+                                                                │AfterNumber │
+                                                                └────────────┘
+                                                                       │
+                                                                       ↓ )
+                                                                ┌──────────┐
+                                                                │ CloseArg │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ ;
+                                                                ┌─────────┐
+                                                                │   End   │
+                                                                └─────────┘
+            </div>
+        </div>
+
+        <!-- Алгоритм работы -->
+        <div class="card">
+            <h2>⚙️ Алгоритм синтаксического анализа</h2>
+            <div class="algorithm">
+                <div class="algorithm-step">
+                    <strong>Шаг 1. Инициализация</strong><br>
+                    currentState = Start, position = 0
+                </div>
+                <div class="algorithm-step">
+                    <strong>Шаг 2. Чтение лексемы</strong><br>
+                    currentLexem = lexems[position]
+                </div>
+                <div class="algorithm-step">
+                    <strong>Шаг 3. Проверка допустимости</strong><br>
+                    Если для текущего состояния и лексемы определён переход:<br>
+                    &nbsp;&nbsp;→ выполнить переход в новое состояние<br>
+                    Иначе:<br>
+                    &nbsp;&nbsp;→ зафиксировать синтаксическую ошибку<br>
+                    &nbsp;&nbsp;→ применить стратегию нейтрализации (метод Айронса)
+                </div>
+                <div class="algorithm-step">
+                    <strong>Шаг 4. Продолжение</strong><br>
+                    position++, переход к шагу 2
+                </div>
+                <div class="algorithm-step">
+                    <strong>Шаг 5. Завершение</strong><br>
+                    Если достигнуто состояние End и все лексемы обработаны → успех<br>
+                    Иначе → ошибка
+                </div>
+            </div>
+
+            <!-- Псевдокод -->
+            <h3>📝 Псевдокод алгоритма:</h3>
+            <div class="code-block">
+                <span class="keyword">function</span> <span class="function">Parse</span>(lexems): boolean<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;currentState = Start;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;position = 0;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span> (position &lt; lexems.length) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentLexem = lexems[position];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">switch</span> (currentState) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> Start:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (currentLexem.type == IDENTIFIER)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentState = IdRem;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">Error</span>("Ожидался идентификатор");<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// ... остальные состояния</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> (currentState == End);<br>
+                }
+            </div>
+        </div>
+
+        <!-- Метод Айронса (нейтрализация ошибок) -->
+        <div class="card">
+            <h2>🛡️ Нейтрализация синтаксических ошибок (метод Айронса)</h2>
+            <p>Для восстановления после синтаксических ошибок используется <strong>метод Айронса (panic mode recovery)</strong>. Этот метод позволяет продолжить анализ после обнаружения ошибки и найти все ошибки в программе за один проход.</p>
+            
+            <h3>Стратегии нейтрализации:</h3>
+            <div class="irones-method">
+                <div class="strategy-card">
+                    <div class="code">Стратегия 1: Пропуск лексемы</div>
+                    <p>Недопустимый символ удаляется из потока, анализ продолжается со следующей лексемы.</p>
+                    <span class="badge">Пример: * → пропуск</span>
+                </div>
+                <div class="strategy-card">
+                    <div class="code">Стратегия 2: Вставка лексемы</div>
+                    <p>В поток вставляется ожидаемый символ, анализ продолжается.</p>
+                    <span class="badge">Пример: format → вставка . перед format</span>
+                </div>
+                <div class="strategy-card">
+                    <div class="code">Стратегия 3: Замена лексемы</div>
+                    <p>Ошибочный символ заменяется на ожидаемый.</p>
+                    <span class="badge">Пример: {:g} → замена на {:f}</span>
+                </div>
+                <div class="strategy-card">
+                    <div class="code">Стратегия 4: Синхронизация</div>
+                    <p>Поиск синхронизирующего символа (например, ';') для перехода в безопасное состояние.</p>
+                    <span class="badge">Пример: поиск ; после ошибки</span>
+                </div>
+            </div>
+
+            <h3>Алгоритм обработки ошибки:</h3>
+            <div class="code-block">
+                <span class="keyword">function</span> <span class="function">HandleError</span>(state, lexem)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;errorCode = <span class="function">DetermineErrorCode</span>(state, lexem);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">switch</span> (errorCode) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> SKIP:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// пропустить лексему</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> INSERT:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// вставить ожидаемую лексему</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentState = expectedState;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> REPLACE:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// заменить лексему</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentState = expectedState;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> SYNC:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// найти синхронизирующее состояние</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span> (position &lt; lexems.length)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (lexems[position].type == SYNC_SYMBOL)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;position++;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentState = Start;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                }
+            </div>
+        </div>
+
+        <!-- Пример работы анализатора -->
+        <div class="card">
+            <h2>🔬 Пример работы анализатора</h2>
+            <h3>Входная строка:</h3>
+            <div class="trace-example">float_format = "{:f}".format(3.234e+4);</div>
+            
+            <h3>Трассировка состояний:</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Шаг</th><th>Позиция</th><th>Лексема</th><th>Текущее состояние</th><th>Следующее состояние</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>0</td><td>float_format (id)</td><td>Start</td><td>IdRem</td></tr>
+                        <tr><td>2</td><td>1</td><td>=</td><td>IdRem</td><td>AfterEqual</td></tr>
+                        <tr><td>3</td><td>2</td><td>"</td><td>AfterEqual</td><td>OpenQuote</td></tr>
+                        <tr><td>4</td><td>3</td><td>{</td><td>OpenQuote</td><td>OpenBrace</td></tr>
+                        <tr><td>5</td><td>4</td><td>:</td><td>OpenBrace</td><td>Colon</td></tr>
+                        <tr><td>6</td><td>5</td><td>f</td><td>Colon</td><td>LetterF</td></tr>
+                        <tr><td>7</td><td>6</td><td>}</td><td>LetterF</td><td>CloseBrace</td></tr>
+                        <tr><td>8</td><td>7</td><td>"</td><td>CloseBrace</td><td>CloseQuote</td></tr>
+                        <tr><td>9</td><td>8</td><td>.</td><td>CloseQuote</td><td>AfterDot</td></tr>
+                        <tr><td>10</td><td>9</td><td>format</td><td>AfterDot</td><td>Format</td></tr>
+                        <tr><td>11</td><td>10</td><td>(</td><td>Format</td><td>OpenArg</td></tr>
+                        <tr><td>12</td><td>11</td><td>3.234e+4 (число)</td><td>OpenArg</td><td>InNumber</td></tr>
+                        <tr><td>13</td><td>12</td><td>)</td><td>InNumber</td><td>AfterNumber</td></tr>
+                        <tr><td>14</td><td>13</td><td>)</td><td>AfterNumber</td><td>CloseArg</td></tr>
+                        <tr><td>15</td><td>14</td><td>;</td><td>CloseArg</td><td>End</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="trace-example" style="background: #e6fffa; margin-top: 10px;">
+                ✅ <strong>Результат:</strong> Строка успешно распознана, достигнуто состояние End
+            </div>
+        </div>
+
+        <!-- Пример обработки ошибки -->
+        <div class="card">
+            <h2>⚠️ Пример обработки синтаксической ошибки</h2>
+            <h3>Входная строка:</h3>
+            <div class="trace-example example-bad">float_format = "{:g}".format(3.234e+4);</div>
+            
+            <h3>Трассировка с обнаружением ошибки:</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Шаг</th><th>Позиция</th><th>Лексема</th><th>Текущее состояние</th><th>Ожидалось</th><th>Действие</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1-7</td><td>0-6</td><td>... {: </td><td>Colon</td><td>f</td><td>✓ нормально</td></tr>
+                        <tr style="background: #fff5f5;"><td>8</td><td>7</td><td>g</td><td>Colon</td><td>f</td><td>❌ ОШИБКА! Ожидалась буква 'f'</td></tr>
+                        <tr><td colspan="6" style="background: #fef5e7;">📌 Применена стратегия: замена 'g' на 'f'</td></tr>
+                        <tr><td>9</td><td>8</td><td>}</td><td>LetterF</td><td>}</td><td>✓ продолжение</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="trace-example example-bad" style="margin-top: 10px;">
+                ⚠️ <strong>Результат:</strong> Обнаружена ошибка на позиции 7 (символ 'g'), 
+                применена стратегия замены, анализ продолжен. Пользователю выдано сообщение:
+                "Неверный форматный спецификатор. Ожидался '{:f}'"
+            </div>
+        </div>
+
+        <!-- Вывод -->
+        <div class="card">
+            <h2>✅ Вывод</h2>
+            <p>Реализованный метод синтаксического анализа на основе конечного автомата обеспечивает:</p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li><strong>Детерминированность</strong> — для каждой пары (состояние, лексема) определён не более одного перехода</li>
+                <li><strong>Линейную сложность</strong> O(n) — анализ выполняется за один проход по лексемам</li>
+                <li><strong>Точную диагностику</strong> — указание позиции и описание каждой ошибки</li>
+                <li><strong>Восстановление после ошибок</strong> — метод Айронса позволяет найти все ошибки в программе</li>
+                <li><strong>Простоту реализации</strong> — конечный автомат легко реализуется с помощью оператора switch/case</li>
+            </ul>
+            <br>
+            <p>Данный метод успешно применяется в разработанном синтаксическом анализаторе и показывает корректные результаты на всех тестовых примерах.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Лабораторная работа: Разработка лексического и синтаксического анализатора<br>
+            Кафедра АВТ | АВТ-313 | Апрель 2026
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справка - Компиляторный редактор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #1a252f);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1em;
+            opacity: 0.85;
+        }
+
+        .version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+
+        /* Навигация */
+        .nav {
+            background: #34495e;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 18px;
+            display: inline-block;
+            transition: background 0.3s;
+            font-size: 0.9em;
+        }
+
+        .nav a:hover {
+            background: #1abc9c;
+        }
+
+        /* Контент */
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1abc9c;
+            display: inline-block;
+        }
+
+        .section h3 {
+            color: #34495e;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        /* Таблицы меню */
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .menu-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .menu-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .menu-table tr:hover {
+            background: #f0f0f0;
+        }
+
+        .menu-category {
+            background: #e8f4f8;
+            font-weight: bold;
+        }
+
+        /* Кнопки */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .button-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .button-card:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .button-icon {
+            font-size: 1.8em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .button-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .button-desc {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Горячие клавиши */
+        kbd {
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 0.85em;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+        }
+
+        .shortcut {
+            color: #1abc9c;
+            font-family: monospace;
+        }
+
+        /* Интерфейс */
+        .interface-scheme {
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            margin: 20px 0;
+        }
+
+        .interface-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .interface-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .area-title {
+            font-size: 0.8em;
+            color: #1abc9c;
+            margin-bottom: 5px;
+        }
+
+        /* Пример */
+        .example {
+            background: #e8f4f8;
+            border-left: 4px solid #1abc9c;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Футер */
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .footer a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .nav a {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+            .button-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Компиляторный редактор</h1>
+            <p>Редактор для ввода и анализа синтаксиса форматированных строк</p>
+            <div class="version">Версия 1.0 | Лексический и синтаксический анализатор</div>
+        </div>
+
+        <div class="nav">
+            <a href="#menu">📋 Меню</a>
+            <a href="#buttons">🔘 Кнопки</a>
+            <a href="#editor">✏️ Редактор</a>
+            <a href="#results">📊 Результаты</a>
+            <a href="#shortcuts">⌨️ Горячие клавиши</a>
+            <a href="#help">❓ Справка</a>
+        </div>
+
+        <div class="content">
+            <!-- Меню программы -->
+            <div id="menu" class="section">
+                <h2>📋 Меню программы</h2>
+                
+                <h3>📁 Файл</h3>
+                <table class="menu-table">
+                    <tr><th>Пункт меню</th><th>Действие</th><th>Горячая клавиша</th></tr>
+                    <tr><td>Открыть</td><td>Открыть существующий файл с кодом</td><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td></tr>
+                    <tr><td>Создать</td><td>Создать новый пустой файл</td><td><kbd>Ctrl</kbd> + <kbd>N</kbd></td></tr>
+                    <tr><td>Сохранить</td><td>Сохранить текущий файл</td><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td></tr>
+                    <tr><td>Сохранить как</td><td>Сохранить файл под новым именем</td><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td></tr>
+                    <tr><td>Выход</td><td>Закрыть программу</td><td><kbd>Alt</kbd> + <kbd>F4</kbd></td></tr>
+                </table>
+
+                <h3>✏️ Правка</h3>
+                <table class="menu-table">
+                    <tr><th>Пункт меню</th><th>Действие</th><th>Горячая клавиша</th></tr>
+                    <tr><td>Отменить</td><td>Отменить последнее действие</td><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td></tr>
+                    <tr><td>Повторить</td><td>Вернуть отменённое действие</td><td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td></tr>
+                    <tr><td>Вырезать</td><td>Вырезать выделенный текст в буфер обмена</td><td><kbd>Ctrl</kbd> + <kbd>X</kbd></td></tr>
+                    <tr><td>Копировать</td><td>Скопировать выделенный текст в буфер обмена</td><td><kbd>Ctrl</kbd> + <kbd>C</kbd></td></tr>
+                    <tr><td>Вставить</td><td>Вставить текст из буфера обмена</td><td><kbd>Ctrl</kbd> + <kbd>V</kbd></td></tr>
+                    <tr><td>Удалить</td><td>Удалить выделенный текст</td><td><kbd>Del</kbd></td></tr>
+                    <tr><td>Выделить всё</td><td>Выделить весь текст в редакторе</td><td><kbd>Ctrl</kbd> + <kbd>A</kbd></td></tr>
+                    <tr><td>Закрыть файл</td><td>Закрыть текущий файл</td><td><kbd>Ctrl</kbd> + <kbd>W</kbd></td></tr>
+                </table>
+
+                <h3>📖 Текст (справочная информация)</h3>
+                <p>Открывает HTML-страницы с теоретическими материалами:</p>
+                <ul style="margin-left: 30px; margin-top: 10px;">
+                    <li><strong>Постановка задачи</strong> — описание целей и требований</li>
+                    <li><strong>Грамматика</strong> — формальное описание языка</li>
+                    <li><strong>Классификация грамматики</strong> — тип грамматики по Хомскому</li>
+                    <li><strong>Метод анализа</strong> — описание алгоритма рекурсивного спуска</li>
+                    <li><strong>Диагностика и нейтрализация ошибок</strong> — алгоритм Айронса</li>
+                    <li><strong>Тестовый пример</strong> — демонстрация работы анализатора</li>
+                    <li><strong>Список литературы</strong> — использованные источники</li>
+                    <li><strong>Исходный код программы</strong> — код лексера и парсера</li>
+                </ul>
+
+                <h3>▶️ Пуск</h3>
+                <p>Запускает лексический и синтаксический анализ кода, введённого в редакторе. Результаты отображаются в таблице ошибок.</p>
+
+                <h3>❓ Справка</h3>
+                <table class="menu-table">
+                    <tr><td>Вызов справки</td><td>Открывает данный HTML-файл со справкой</td><td><kbd>F1</kbd></td></tr>
+                    <tr><td>О программе</td><td>Отображает информацию о версии и авторе</td><td></td></tr>
+                </table>
+            </div>
+
+            <!-- Кнопки -->
+            <div id="buttons" class="section">
+                <h2>🔘 Панель инструментов (кнопки)</h2>
+                <div class="button-grid">
+                    <div class="button-card"><span class="button-icon">📄</span><span class="button-name">Создать файл</span><span class="button-desc">Новый пустой документ</span></div>
+                    <div class="button-card"><span class="button-icon">📂</span><span class="button-name">Открыть файл</span><span class="button-desc">Открыть существующий файл</span></div>
+                    <div class="button-card"><span class="button-icon">💾</span><span class="button-name">Сохранить файл</span><span class="button-desc">Сохранить текущий документ</span></div>
+                    <div class="button-card"><span class="button-icon">↩️</span><span class="button-name">Отменить</span><span class="button-desc">Отменить последнее действие</span></div>
+                    <div class="button-card"><span class="button-icon">↪️</span><span class="button-name">Повторить</span><span class="button-desc">Вернуть отменённое действие</span></div>
+                    <div class="button-card"><span class="button-icon">📋</span><span class="button-name">Копировать</span><span class="button-desc">Копировать выделенное</span></div>
+                    <div class="button-card"><span class="button-icon">✂️</span><span class="button-name">Вырезать</span><span class="button-desc">Вырезать выделенное</span></div>
+                    <div class="button-card"><span class="button-icon">📌</span><span class="button-name">Вставить</span><span class="button-desc">Вставить из буфера</span></div>
+                    <div class="button-card"><span class="button-icon">🕒</span><span class="button-name">Выбрать недавний файл</span><span class="button-desc">Открыть ранее использованный файл</span></div>
+                    <div class="button-card"><span class="button-icon">▶️</span><span class="button-name">Пуск</span><span class="button-desc">Запустить анализ кода</span></div>
+                    <div class="button-card"><span class="button-icon">❓</span><span class="button-name">Вызов справки</span><span class="button-desc">Открыть справочную информацию</span></div>
+                    <div class="button-card"><span class="button-icon">ℹ️</span><span class="button-name">О программе</span><span class="button-desc">Информация о версии</span></div>
+                </div>
+            </div>
+
+            <!-- Редактор -->
+            <div id="editor" class="section">
+                <h2>✏️ Редактор кода</h2>
+                <div class="interface-scheme">
+                    <div class="interface-row">
+                        <div class="interface-area" style="flex: 0 0 60px;">
+                            <div class="area-title">Нумерация строк</div>
+                            <div style="font-family: monospace; text-align: right; font-size: 12px;">
+                                1<br>2<br>3<br>4<br>5<br>6<br>7<br>8
+                            </div>
+                        </div>
+                        <div class="interface-area" style="flex: 1;">
+                            <div class="area-title">Окно редактирования</div>
+                            <div style="font-family: 'Consolas', monospace; font-size: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 4px;">
+                                float_format = "{:f}".format(3.234e+4);
+                            </div>
+                            <div style="font-size: 11px; margin-top: 8px; color: #aaa;">
+                                📝 Введите код для анализа. Поддерживаются: идентификаторы, строки с {:f}, вызов format(число)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info" style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 12px; margin-top: 10px;">
+                    <strong>💡 Подсказка:</strong> Слева от окна редактирования отображается нумерация строк для удобной навигации.
+                </div>
+            </div>
+
+            <!-- Результаты -->
+            <div id="results" class="section">
+                <h2>📊 Результаты сканирования</h2>
+                <p>Ниже окна редактирования расположена таблица с результатами анализа:</p>
+                <table class="menu-table">
+                    <tr><th>Результаты сканирования</th><th>Местоположение</th></tr>
+                    <tr><td>Ожидался '=', получен '{:f}'</td><td>строка 1, позиция 13</td></tr>
+                    <tr><td>Отсутствует открывающая кавычка</td><td>строка 1, позиция 13</td></tr>
+                    <tr><td>Неверный форматный спецификатор. Ожидался '{:f}'</td><td>строка 1, позиция 16</td></tr>
+                    <tr><td>Отсутствует точка перед 'format'</td><td>строка 1, позиция 21</td></tr>
+                </table>
+                <div class="example">
+                    <strong>📌 Примечание:</strong> В столбце "Результаты сканирования" отображается описание ошибки, а в столбце "Местоположение" — строка и позиция, где обнаружена ошибка.
+                </div>
+            </div>
+
+            <!-- Горячие клавиши -->
+            <div id="shortcuts" class="section">
+                <h2>⌨️ Горячие клавиши</h2>
+                <div class="button-grid">
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+N</kbd></span><span class="button-desc">Новый файл</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+O</kbd></span><span class="button-desc">Открыть файл</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+S</kbd></span><span class="button-desc">Сохранить</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+Shift+S</kbd></span><span class="button-desc">Сохранить как</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+Z</kbd></span><span class="button-desc">Отменить</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+Y</kbd></span><span class="button-desc">Повторить</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+X</kbd></span><span class="button-desc">Вырезать</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+C</kbd></span><span class="button-desc">Копировать</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+V</kbd></span><span class="button-desc">Вставить</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+A</kbd></span><span class="button-desc">Выделить всё</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Ctrl+W</kbd></span><span class="button-desc">Закрыть файл</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>F5</kbd> или <kbd>Ctrl+R</kbd></span><span class="button-desc">Запустить анализ (Пуск)</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>F1</kbd></span><span class="button-desc">Вызов справки</span></div>
+                    <div class="button-card"><span class="button-name"><kbd>Alt+F4</kbd></span><span class="button-desc">Выход</span></div>
+                </div>
+            </div>
+
+            <!-- Справка -->
+            <div id="help" class="section">
+                <h2>❓ Как пользоваться программой</h2>
+                <ol style="margin-left: 30px; line-height: 1.8;">
+                    <li><strong>Ввод кода:</strong> Напишите или вставьте код в окно редактирования. Поддерживается синтаксис: <code>идентификатор = "строка {:f}".format(число);</code></li>
+                    <li><strong>Запуск анализа:</strong> Нажмите кнопку <strong>Пуск</strong> или клавишу <kbd>F5</kbd>.</li>
+                    <li><strong>Просмотр результатов:</strong> В таблице ниже отобразятся все найденные ошибки с указанием строки и позиции.</li>
+                    <li><strong>Работа с файлами:</strong> Используйте меню <strong>Файл</strong> или кнопки на панели инструментов для сохранения и загрузки кода.</li>
+                    <li><strong>Редактирование:</strong> Стандартные операции (копировать, вставить, отменить) доступны через меню <strong>Правка</strong>, кнопки или горячие клавиши.</li>
+                    <li><strong>Справочная информация:</strong> Для изучения теории откройте раздел <strong>Текст</strong> в меню.</li>
+                </ol>
+                <div class="warning" style="background: #fff3cd; border-left-color: #ffc107; padding: 12px; margin-top: 15px;">
+                    <strong>⚠️ Примечание:</strong> Каждый оператор должен заканчиваться точкой с запятой <code>;</code>. Форматный спецификатор внутри строки должен быть записан как <code>{:f}</code>.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Компиляторный редактор — инструмент для лексического и синтаксического анализа</p>
+            <p>Работает на основе <strong>конечного автомата-распознавателя (ДКА)</strong>
+            <p>© 2026 | <a href="#">О программе</a></p>
+        </div>
+    </div>
+</body>
+</html>

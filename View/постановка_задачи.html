@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Постановка задачи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        h2 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .task {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .example {
+            background: #e6fffa;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-right: 8px;
+        }
+
+        ul {
+            margin-left: 25px;
+            line-height: 1.8;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.85em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📌 Постановка задачи</h1>
+
+        <h2>🎯 Цель работы</h2>
+        <p>Разработать лексический и синтаксический анализатор для конструкции форматированного вывода в языке Python.</p>
+
+        <h2>📝 Описание конструкции</h2>
+        <div class="task">
+            идентификатор = "{:f}".format(число);
+        </div>
+
+        <h2>✅ Примеры корректных строк</h2>
+        <div class="example">
+            float_format = "{:f}".format(3.234e+4);
+        </div>
+        <div class="example">
+            result = "{:f}".format(-123.456);
+        </div>
+        <div class="example">
+            temp = "{:f}".format(0.001e-5);
+        </div>
+
+        <h2>❌ Примеры строк с ошибками</h2>
+        <div class="example" style="background: #fff5f5;">
+            float_form*at = "{:f}".format(3.234e+4);  <span class="badge">недопустимый символ</span>
+        </div>
+        <div class="example" style="background: #fff5f5;">
+            result = "{:g}".format(-123.456);        <span class="badge">неверный спецификатор</span>
+        </div>
+        <div class="example" style="background: #fff5f5;">
+            x = "{:f}".format(5)                     <span class="badge">отсутствует ';'</span>
+        </div>
+
+        <h2>📋 Требования к анализатору</h2>
+        <ul>
+            <li>Выделять лексемы из входной строки</li>
+            <li>Классифицировать лексемы по типам</li>
+            <li>Проверять синтаксическую корректность</li>
+            <li>Обнаруживать и сообщать об ошибках</li>
+            <li>Указывать позиции ошибок</li>
+            <li>Обеспечивать навигацию по ошибкам</li>
+        </ul>
+
+        <div class="info">
+            Соболев Илья Олегович | АВТ-313 | Вариант 50
+        </div>
+    </div>
+</body>
+</html>

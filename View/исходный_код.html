@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Исходный код программы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .header .author {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .file-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #2d3748;
+            color: #e2e8f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #4a5568;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .code-container {
+            background: #1e1e2e;
+            border-radius: 0 12px 12px 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .code-header {
+            background: #2d3748;
+            padding: 10px 15px;
+            color: #a0aec0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            background: #1e1e2e;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        /* Синтаксическая подсветка */
+        .keyword { color: #c792ea; font-weight: bold; }
+        .class-name { color: #82aaff; }
+        .string { color: #c3e88d; }
+        .comment { color: #546e7a; font-style: italic; }
+        .number { color: #f78c6c; }
+        .function { color: #82aaff; }
+        .namespace { color: #ffcb6b; }
+
+        .info {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 Исходный код программы</h1>
+            <div class="subtitle">Лексический и синтаксический анализатор для форматированных строк Python</div>
+            <div class="author">Соболев Илья Олегович | АВТ-313 | Вариант 50</div>
+        </div>
+
+        <div class="file-tabs">
+            <button class="tab-btn active" onclick="showFile('main')">MainPresenter.cs</button>
+            <button class="tab-btn" onclick="showFile('parser')">Parser.cs</button>
+            <button class="tab-btn" onclick="showFile('lexer')">Lexer.cs</button>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header" id="file-header">📄 MainPresenter.cs</div>
+            <pre id="code-content"><code id="code-highlighted"></code></pre>
+        </div>
+
+        <div class="info">
+            Общий объём кода: ~650 строк | C# | Windows Forms
+        </div>
+    </div>
+
+    <script>
+        const files = {
+            main: `using CompilerV2.Model;
+using CompilerV2.Presenter;
+using CompilerV2.View;
+using CompilerV2.View.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Resources;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+<span class="keyword">namespace</span> <span class="namespace">CompilerV2.Presenter</span>
+{
+    <span class="keyword">public class</span> <span class="class-name">MainPresenter</span>
+    {
+        <span class="keyword">private readonly</span> <span class="class-name">IMain</span> _view;
+        <span class="keyword">private</span> List&lt;<span class="class-name">Lexem</span>&gt; lexemsList;
+        <span class="keyword">private string</span> editingFileName = <span class="string">""</span>;
+        <span class="keyword">private bool</span> isSaved = <span class="keyword">true</span>;
+        <span class="keyword">private</span> <span class="class-name">Operation</span> lastUserOperation;
+        <span class="keyword">private</span> List&lt;<span class="class-name">TextModel</span>&gt; textModels = <span class="keyword">new</span> List&lt;<span class="class-name">TextModel</span>&gt;();
+        <span class="keyword">private int</span> currentPageId;
+        <span class="keyword">private string</span> CreateFileStr = <span class="string">"Файл успешно создан"</span>;
+        <span class="keyword">private string</span> FileSaved = <span class="string">"Файл успешно сохранён"</span>;
+        <span class="keyword">private string</span> FileOpened = <span class="string">"Файл успешно открыт"</span>;
+        <span class="keyword">public string</span> CloseUnsavedStr = <span class="string">"Есть несохранённые вкладки. Вы уверены, что хотите закрыть программу?"</span>;
+        <span class="keyword">public string</span> CloseSavedStr = <span class="string">"Вы уверены, что хотите закрыть программу?"</span>;
+        <span class="keyword">public string</span> SaveNoPathStr = <span class="string">"Не выбран редактируемый файл. Желаете создать файл?"</span>;
+        <span class="keyword">public string</span> CloseProgramStr = <span class="string">"Закрытие программы"</span>;
+        <span class="keyword">public string</span> MessageNoPathStr = <span class="string">"Отсутствует редактируемый файл"</span>;
+        <span class="keyword">public</span> <span class="class-name">ResourceManager</span> _res;
+
+        <span class="keyword">public</span> <span class="function">MainPresenter</span>(<span class="class-name">IMain</span> view)
+        {
+            _view = view ?? <span class="keyword">throw new</span> <span class="class-name">ArgumentNullException</span>(<span class="keyword">nameof</span>(view));
+
+            <span class="class-name">TextModel</span> defaultModel = <span class="keyword">new</span> <span class="class-name">TextModel</span>(<span class="string">"Новый файл.txt"</span>, <span class="number">1</span>, <span class="string">""</span>, <span class="keyword">null</span>, <span class="keyword">true</span>, <span class="string">""</span>);
+            textModels.Add(defaultModel);
+            currentPageId = <span class="number">1</span>;
+            editingFileName = <span class="string">"Новый файл.txt"</span>;
+            isSaved = <span class="keyword">true</span>;
+            _view.AddTab(editingFileName, defaultModel.id);
+            _view.SetPage(defaultModel.id);
+            _view.CreateFile += CreateFile;
+            _view.OpenFile += OpenFile;
+            _view.SaveFile += SaveFile;
+            _view.SaveAsFile += SaveAsFile;
+            _view.CloseProgram += CloseProgram;
+            _view.Repeat += Repeat;
+            _view.SelectPage += SelectPage;
+            _view.ChangeLastUserOperation += ChangeLastUserOperation;
+            _view.NullLastUserOperation += NullLastUserOperation;
+            _view.SetNewFileSavedStr += SetNewFileSavedStr;
+            _view.SetNewFileOpenedStr += SetNewFileOpenedStr;
+            _view.SetNewFileCreatedStr += SetNewFileCreatedStr;
+            _view.ThrowLastTextToModel += SetLastTextOnModel;
+            _view.ThrowNewTextToModel += SetNewTextOnModel;
+            _view.CloseCurrentPage += CloseCurrentPage;
+            _view.StartEnd += StartEnd;
+        }
+
+        <span class="keyword">public void</span> <span class="function">StartEnd</span>(<span class="keyword">object</span> sender, <span class="keyword">string</span> textToAnalyze)
+        {
+            lexemsList = <span class="keyword">new</span> List&lt;<span class="class-name">Lexem</span>&gt;();
+            <span class="class-name">Lexer</span> lexer = <span class="keyword">new</span> <span class="class-name">Lexer</span>(textToAnalyze, _res);
+            lexemsList = lexer.Scan();
+            <span class="class-name">Parser</span> parser = <span class="keyword">new</span> <span class="class-name">Parser</span>(lexemsList, textToAnalyze);
+            parser.Parse();
+            _view.FillErrorsDGV(parser.stateLog);
+        }
+
+        <span class="comment">// ... остальные методы класса</span>
+    }
+}`,
+
+            parser: `using System;
+using System.Collections.Generic;
+using System.Linq;
+using CompilerV2.Model;
+
+<span class="keyword">namespace</span> <span class="namespace">CompilerV2.Presenter</span>
+{
+    <span class="keyword">public class</span> <span class="class-name">Parser</span>
+    {
+        <span class="keyword">private enum</span> <span class="class-name">ExpectedToken</span>
+        {
+            Identifier, Assignment, FString, Dot, Format,
+            OpenParen, ScientificNumber, CloseParen, Semicolon
+        }
+
+        <span class="keyword">private readonly</span> List&lt;<span class="class-name">Lexem</span>&gt; lexems;
+        <span class="keyword">private readonly</span> HashSet&lt;<span class="keyword">int</span>&gt; erroredLexemStarts;
+        <span class="keyword">private readonly string</span> sourceText;
+        <span class="keyword">public</span> List&lt;<span class="class-name">ErrorPair</span>&gt; stateLog;
+
+        <span class="keyword">public</span> <span class="function">Parser</span>(List&lt;<span class="class-name">Lexem</span>&gt; lexems, <span class="keyword">string</span> sourceText)
+        {
+            <span class="keyword">this</span>.lexems = lexems;
+            <span class="keyword">this</span>.erroredLexemStarts = <span class="keyword">new</span> HashSet&lt;<span class="keyword">int</span>&gt;();
+            <span class="keyword">this</span>.sourceText = sourceText ?? <span class="keyword">string</span>.Empty;
+            <span class="keyword">this</span>.stateLog = <span class="keyword">new</span> List&lt;<span class="class-name">ErrorPair</span>&gt;();
+        }
+
+        <span class="keyword">public void</span> <span class="function">Parse</span>()
+        {
+            <span class="keyword">int</span> position = <span class="number">0</span>;
+            <span class="class-name">ExpectedToken</span>[] sequence = <span class="keyword">new</span> <span class="class-name">ExpectedToken</span>[]
+            {
+                ExpectedToken.Identifier, ExpectedToken.Assignment,
+                ExpectedToken.FString, ExpectedToken.Dot, ExpectedToken.Format,
+                ExpectedToken.OpenParen, ExpectedToken.ScientificNumber,
+                ExpectedToken.CloseParen, ExpectedToken.Semicolon
+            };
+
+            <span class="keyword">while</span> (position &lt; lexems.Count)
+            {
+                <span class="keyword">bool</span> statementFailed = <span class="keyword">false</span>;
+                
+                <span class="keyword">for</span> (<span class="keyword">int</span> expectedIndex = <span class="number">0</span>; expectedIndex &lt; sequence.Length; expectedIndex++)
+                {
+                    <span class="class-name">ExpectedToken</span> expected = sequence[expectedIndex];
+                    
+                    <span class="keyword">if</span> (position &gt;= lexems.Count)
+                    {
+                        AddMissingTokenError(expected);
+                        statementFailed = <span class="keyword">true</span>;
+                        <span class="keyword">continue</span>;
+                    }
+
+                    <span class="class-name">Lexem</span> currentLexem = lexems[position];
+
+                    <span class="keyword">if</span> (currentLexem.lexemCode == <span class="number">19</span>)
+                    {
+                        AddErrorOnce(currentLexem, <span class="string">$"Некорректная лексема: '{currentLexem.lexemContaintment}'."</span>);
+                        position++;
+                        statementFailed = <span class="keyword">true</span>;
+                        <span class="keyword">continue</span>;
+                    }
+
+                    <span class="keyword">if</span> (!IsExpected(currentLexem, expected))
+                    {
+                        AddErrorOnce(currentLexem, <span class="string">$"Ожидалась лексема: {GetExpectedText(expected)}, но получено '{currentLexem.lexemContaintment}'."</span>);
+                        position++;
+                        statementFailed = <span class="keyword">true</span>;
+                        <span class="keyword">continue</span>;
+                    }
+
+                    ValidateSpelling(currentLexem, expected);
+                    position++;
+                }
+
+                <span class="keyword">if</span> (!statementFailed && position &lt; lexems.Count && lexems[position].lexemCode == <span class="number">18</span>)
+                {
+                    position++;
+                }
+            }
+        }
+
+        <span class="keyword">private bool</span> <span class="function">IsExpected</span>(<span class="class-name">Lexem</span> lexem, <span class="class-name">ExpectedToken</span> expected)
+        {
+            <span class="keyword">switch</span> (expected)
+            {
+                <span class="keyword">case</span> ExpectedToken.Identifier: <span class="keyword">return</span> lexem.lexemCode == <span class="number">1</span>;
+                <span class="keyword">case</span> ExpectedToken.Assignment: <span class="keyword">return</span> lexem.lexemCode == <span class="number">4</span>;
+                <span class="keyword">case</span> ExpectedToken.FString: <span class="keyword">return</span> lexem.lexemCode == <span class="number">6</span>;
+                <span class="keyword">case</span> ExpectedToken.Dot: <span class="keyword">return</span> lexem.lexemCode == <span class="number">9</span>;
+                <span class="keyword">case</span> ExpectedToken.Format: <span class="keyword">return</span> lexem.lexemCode == <span class="number">2</span>;
+                <span class="keyword">case</span> ExpectedToken.OpenParen: <span class="keyword">return</span> lexem.lexemCode == <span class="number">16</span>;
+                <span class="keyword">case</span> ExpectedToken.ScientificNumber: <span class="keyword">return</span> lexem.lexemCode == <span class="number">10</span> || lexem.lexemCode == <span class="number">11</span> || lexem.lexemCode == <span class="number">14</span> || lexem.lexemCode == <span class="number">15</span>;
+                <span class="keyword">case</span> ExpectedToken.CloseParen: <span class="keyword">return</span> lexem.lexemCode == <span class="number">17</span>;
+                <span class="keyword">case</span> ExpectedToken.Semicolon: <span class="keyword">return</span> lexem.lexemCode == <span class="number">18</span>;
+                <span class="keyword">default</span>: <span class="keyword">return false</span>;
+            }
+        }
+
+        <span class="keyword">private void</span> <span class="function">ValidateSpelling</span>(<span class="class-name">Lexem</span> lexem, <span class="class-name">ExpectedToken</span> expected)
+        {
+            <span class="keyword">switch</span> (expected)
+            {
+                <span class="keyword">case</span> ExpectedToken.Identifier:
+                    ValidateIdentifier(lexem);
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> ExpectedToken.FString:
+                    <span class="keyword">if</span> (!lexem.lexemContaintment.Contains(<span class="string">"{:f}"</span>))
+                        AddErrorOnce(lexem, <span class="string">"Форматная строка должна содержать спецификатор '{:f}'."</span>);
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> ExpectedToken.ScientificNumber:
+                    <span class="keyword">if</span> (!IsScientificNumber(lexem.lexemContaintment))
+                        AddErrorOnce(lexem, <span class="string">"Число должно быть в экспоненциальной форме, например 3.14e+4."</span>);
+                    <span class="keyword">break</span>;
+            }
+        }
+
+        <span class="comment">// ... остальные методы (ValidateIdentifier, IsScientificNumber, AddErrorOnce, и т.д.)</span>
+    }
+
+    <span class="keyword">public class</span> <span class="class-name">ErrorPair</span>
+    {
+        <span class="keyword">public</span> <span class="class-name">Lexem</span> errorLexem;
+        <span class="keyword">public string</span> errorMessage;
+        <span class="keyword">public int</span> posStart;
+        <span class="keyword">public int</span> posEnd;
+
+        <span class="keyword">public</span> <span class="function">ErrorPair</span>(<span class="keyword">string</span> message, <span class="class-name">Lexem</span> lexem)
+        {
+            errorLexem = lexem;
+            errorMessage = message;
+        }
+
+        <span class="keyword">public</span> <span class="function">ErrorPair</span>(<span class="keyword">string</span> message, <span class="class-name">Lexem</span> lexem, <span class="keyword">int</span> start, <span class="keyword">int</span> end)
+        {
+            errorLexem = lexem;
+            errorMessage = message;
+            posStart = start;
+            posEnd = end;
+        }
+    }
+}`,
+
+            lexer: `using CompilerV2.Model;
+using CompilerV2.View;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Resources;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+<span class="keyword">namespace</span> <span class="namespace">CompilerV2.Presenter</span>
+{
+    <span class="keyword">public class</span> <span class="class-name">Lexer</span>
+    {
+        <span class="keyword">private string</span> text;
+        <span class="keyword">private int</span> position;
+        <span class="keyword">private</span> List&lt;<span class="class-name">Lexem</span>&gt; lexemsList;
+        <span class="keyword">private</span> <span class="class-name">ResourceManager</span> _res;
+
+        <span class="keyword">public</span> <span class="function">Lexer</span>(<span class="keyword">string</span> textToScan, <span class="class-name">ResourceManager</span> res)
+        {
+            _res = res ?? <span class="keyword">throw new</span> <span class="class-name">ArgumentNullException</span>(<span class="string">"Не найден файл локализации для выбранного языка!"</span>);
+            text = textToScan;
+            position = <span class="number">0</span>;
+            lexemsList = <span class="keyword">new</span> List&lt;<span class="class-name">Lexem</span>&gt;();
+        }
+
+        <span class="keyword">public</span> List&lt;<span class="class-name">Lexem</span>&gt; <span class="function">Scan</span>()
+        {
+            <span class="keyword">while</span> (position &lt; text.Length)
+            { 
+                <span class="keyword">char</span> currentChar = text[position];
+
+                <span class="keyword">if</span> ((currentChar &gt;= <span class="string">'a'</span>) && (currentChar &lt;= <span class="string">'z'</span>) || 
+                    ((currentChar &gt;= <span class="string">'A'</span>) && (currentChar &lt;= <span class="string">'Z'</span>) || 
+                    ((currentChar &gt;= <span class="string">'0'</span>) && (currentChar &lt;= <span class="string">'9'</span>)) || 
+                    currentChar == <span class="string">'-'</span> || currentChar == <span class="string">'+'</span> || currentChar == <span class="string">'_'</span>))
+                {
+                    ProcessIdentifierOrNumber();
+                }
+                <span class="keyword">else</span>
+                {
+                    <span class="keyword">if</span> (ProcessSymbol()) <span class="keyword">break</span>;
+                }
+            }
+            
+            <span class="comment">// Оптимизация: объединение подряд идущих лексем ошибок</span>
+            List&lt;<span class="class-name">Lexem</span>&gt; optimized = <span class="keyword">new</span> List&lt;<span class="class-name">Lexem</span>&gt;();
+            <span class="keyword">int</span> i = <span class="number">0</span>;
+            <span class="keyword">while</span> (i &lt; lexemsList.Count)
+            {
+                <span class="keyword">if</span> (lexemsList[i].lexemCode == <span class="number">19</span>)
+                {
+                    <span class="keyword">int</span> start = lexemsList[i].lexemStartPosition;
+                    <span class="keyword">int</span> end = lexemsList[i].lexemEndPosition;
+                    <span class="keyword">string</span> value = lexemsList[i].lexemContaintment;
+
+                    <span class="keyword">int</span> j = i + <span class="number">1</span>;
+                    <span class="keyword">while</span> (j &lt; lexemsList.Count && lexemsList[j].lexemCode == <span class="number">19</span>)
+                    {
+                        value += lexemsList[j].lexemContaintment;
+                        end = lexemsList[j].lexemEndPosition;
+                        j++;
+                    }
+
+                    optimized.Add(<span class="keyword">new</span> <span class="class-name">Lexem</span>(<span class="number">19</span>, value, start, end, _res));
+                    i = j;
+                }
+                <span class="keyword">else</span>
+                {
+                    optimized.Add(lexemsList[i]);
+                    i++;
+                }
+            }
+            <span class="keyword">return</span> optimized;
+        }
+
+        <span class="keyword">private void</span> <span class="function">ProcessIdentifierOrNumber</span>()
+        {
+            <span class="comment">// Обработка идентификаторов и чисел</span>
+            <span class="comment">// ... (полная реализация метода)</span>
+        }
+
+        <span class="keyword">private bool</span> <span class="function">ProcessSymbol</span>()
+        {
+            <span class="comment">// Обработка символов: =, ", +, -, ., (, ), ;</span>
+            <span class="comment">// ... (полная реализация метода)</span>
+        }
+
+        <span class="keyword">private void</span> <span class="function">ProcessString</span>()
+        {
+            <span class="comment">// Обработка строк и F-строк с форматом {:f}</span>
+            <span class="comment">// ... (полная реализация метода)</span>
+        }
+
+        <span class="keyword">private int</span> <span class="function">FindUnclosedStringRecoveryPosition</span>(<span class="keyword">int</span> start, <span class="keyword">int</span> end)
+        {
+            <span class="comment">// Восстановление после незакрытой строки</span>
+            <span class="comment">// ... (полная реализация метода)</span>
+        }
+    }
+}`
+        };
+
+        function showFile(fileName) {
+            // Обновляем активную кнопку
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Обновляем заголовок
+            const titles = {
+                main: '📄 MainPresenter.cs',
+                parser: '⚙️ Parser.cs',
+                lexer: '🔤 Lexer.cs'
+            };
+            document.getElementById('file-header').innerHTML = titles[fileName];
+            
+            // Обновляем содержимое
+            document.getElementById('code-highlighted').innerHTML = files[fileName];
+        }
+
+        // Инициализация
+        document.getElementById('code-highlighted').innerHTML = files.main;
+    </script>
+</body>
+</html>
