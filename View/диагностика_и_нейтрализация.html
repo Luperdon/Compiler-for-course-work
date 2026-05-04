@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностика и нейтрализация синтаксических ошибок</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header .author {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        /* Блок с кодом */
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: #fbbf24;
+        }
+        .code-block .function {
+            color: #60a5fa;
+        }
+        .code-block .comment {
+            color: #9ca3af;
+        }
+        .code-block .string {
+            color: #a3e635;
+        }
+        .code-block .error {
+            color: #f87171;
+        }
+
+        /* Таблицы */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Карточки стратегий */
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .strategy-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-top: 4px solid;
+            transition: transform 0.2s;
+        }
+        .strategy-card:hover {
+            transform: translateY(-5px);
+        }
+        .strategy-card.skip { border-top-color: #48bb78; }
+        .strategy-card.insert { border-top-color: #4299e1; }
+        .strategy-card.replace { border-top-color: #ed8936; }
+        .strategy-card.sync { border-top-color: #9f7aea; }
+
+        .strategy-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .strategy-card .code-example {
+            font-family: 'Consolas', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.85em;
+        }
+
+        /* Таблица ошибок */
+        .error-table td:first-child {
+            font-weight: bold;
+            color: #e53e3e;
+        }
+
+        /* Пример работы */
+        .trace-example {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+        .trace-example.error {
+            background: #fff5f5;
+            border-left-color: #f56565;
+        }
+        .trace-example.warning {
+            background: #fef5e7;
+            border-left-color: #ed8936;
+        }
+
+        /* Сообщения об ошибках */
+        .error-message {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+        }
+        .error-message .pos {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        /* Тестовые примеры */
+        .test-case {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 12px;
+            margin: 10px 0;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+        .test-case .input {
+            flex: 2;
+            font-family: 'Consolas', monospace;
+        }
+        .test-case .result {
+            flex: 1;
+            font-size: 0.9em;
+        }
+        .test-case .status-success {
+            color: #48bb78;
+            font-weight: bold;
+        }
+        .test-case .status-error {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        /* Бейджи */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: normal;
+        }
+        .badge-success { background: #48bb78; color: white; }
+        .badge-error { background: #e53e3e; color: white; }
+        .badge-warning { background: #ed8936; color: white; }
+        .badge-info { background: #4299e1; color: white; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+            font-size: 0.85em;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>🩺 Диагностика и нейтрализация синтаксических ошибок</h1>
+            <div class="subtitle">Метод Айронса (panic mode recovery) для восстановления после ошибок</div>
+            <div class="author">Соболев Илья Олегович | АВТ-313 | Вариант 50</div>
+        </div>
+
+        <!-- Введение -->
+        <div class="card">
+            <h2>📌 Введение</h2>
+            <p>При синтаксическом анализе программного кода неизбежно возникают ситуации, когда входная строка не соответствует грамматике. В таких случаях анализатор должен не только обнаружить ошибку, но и:</p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li>✅ Сообщить пользователю о наличии ошибки</li>
+                <li>✅ Указать точное местоположение ошибки (строка, позиция)</li>
+                <li>✅ Предоставить понятное описание проблемы</li>
+                <li>✅ Продолжить анализ для обнаружения остальных ошибок</li>
+                <li>✅ Обеспечить возможность навигации по ошибкам</li>
+            </ul>
+            <br>
+            <p>Для решения этих задач в разработанном анализаторе используется <strong>метод Айронса (panic mode recovery)</strong> — один из наиболее эффективных методов восстановления после синтаксических ошибок.</p>
+        </div>
+
+        <!-- Метод Айронса -->
+        <div class="card">
+            <h2>🎯 Метод Айронса (Panic Mode Recovery)</h2>
+            <p><strong>Суть метода:</strong> При обнаружении ошибки анализатор пропускает часть входной строки до тех пор, пока не найдёт специальный "синхронизирующий" символ (например, ';'), после чего анализ возобновляется. Это позволяет обнаружить все ошибки в программе за один проход.</p>
+            
+            <div class="code-block">
+                <span class="comment">// Основная идея метода Айронса:</span>
+                <span class="keyword">if</span> (<span class="function">error_detected</span>()) {
+                    <span class="function">report_error</span>();                    <span class="comment">// сообщить об ошибке</span>
+                    <span class="keyword">while</span> (!<span class="function">is_sync_symbol</span>(current_lexem)) {
+                        <span class="function">skip_lexem</span>();                     <span class="comment">// пропускать лексемы</span>
+                    }
+                    <span class="function">reset_to_safe_state</span>();              <span class="comment">// перейти в безопасное состояние</span>
+                }
+            </div>
+
+            <h3>Преимущества метода:</h3>
+            <ul style="margin-left: 25px; line-height: 1.8;">
+                <li>✅ Простота реализации</li>
+                <li>✅ Гарантированное завершение анализа</li>
+                <li>✅ Обнаружение всех ошибок за один проход</li>
+                <li>✅ Нет зацикливания при обработке ошибок</li>
+                <li>✅ Низкие накладные расходы</li>
+            </ul>
+        </div>
+
+        <!-- Стратегии нейтрализации -->
+        <div class="card">
+            <h2>🔄 Стратегии нейтрализации ошибок</h2>
+            <p>В зависимости от типа ошибки и текущего состояния автомата применяется одна из четырёх стратегий:</p>
+            
+            <div class="strategies-grid">
+                <div class="strategy-card skip">
+                    <h4>📤 Стратегия 1: Пропуск лексемы</h4>
+                    <p>Недопустимый символ удаляется из потока, анализ продолжается со следующей лексемы.</p>
+                    <div class="code-example">
+                        <strong>Пример:</strong> float_form*at = ...<br>
+                        → символ '*' пропускается
+                    </div>
+                    <span class="badge badge-success">Применяется при: недопустимых символах</span>
+                </div>
+
+                <div class="strategy-card insert">
+                    <h4>📥 Стратегия 2: Вставка лексемы</h4>
+                    <p>В поток вставляется ожидаемый символ, анализ продолжается без сдвига позиции.</p>
+                    <div class="code-example">
+                        <strong>Пример:</strong> result = "{:f}"format(...)<br>
+                        → вставка '.' перед 'format'
+                    </div>
+                    <span class="badge badge-info">Применяется при: пропущенных обязательных элементах</span>
+                </div>
+
+                <div class="strategy-card replace">
+                    <h4>🔄 Стратегия 3: Замена лексемы</h4>
+                    <p>Ошибочный символ заменяется на ожидаемый, анализ продолжается.</p>
+                    <div class="code-example">
+                        <strong>Пример:</strong> "{:g}".format(...)<br>
+                        → замена 'g' на 'f'
+                    </div>
+                    <span class="badge badge-warning">Применяется при: неверных форматных спецификаторах</span>
+                </div>
+
+                <div class="strategy-card sync">
+                    <h4>⚡ Стратегия 4: Синхронизация</h4>
+                    <p>Поиск синхронизирующего символа (например, ';') для перехода в безопасное состояние.</p>
+                    <div class="code-example">
+                        <strong>Пример:</strong> x = "{:f}".format(5)<br>
+                        → поиск ';', вставка ';'
+                    </div>
+                    <span class="badge badge-info">Применяется при: серьёзных структурных ошибках</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Классификация ошибок -->
+        <div class="card">
+            <h2>📋 Классификация синтаксических ошибок</h2>
+            <div class="table-wrapper">
+                <table class="error-table">
+                    <thead>
+                        <tr><th>Код ошибки</th><th>Тип ошибки</th><th>Описание</th><th>Стратегия</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #fff5f5;">
+                            <td>E001</td>
+                            <td>Недопустимый символ</td>
+                            <td>Встречен символ, не входящий в алфавит языка</td>
+                            <td><span class="badge badge-success">Пропуск</span></td>
+                        </tr>
+                        <tr>
+                            <td>E002</td>
+                            <td>Отсутствует идентификатор</td>
+                            <td>Ожидался идентификатор, получен другой символ</td>
+                            <td><span class="badge badge-warning">Замена/Синхронизация</span></td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>E003</td>
+                            <td>Отсутствует '='</td>
+                            <td>После идентификатора ожидался оператор присваивания</td>
+                            <td><span class="badge badge-info">Вставка</span></td>
+                        </tr>
+                        <tr>
+                            <td>E004</td>
+                            <td>Отсутствует кавычка</td>
+                            <td>Строка должна начинаться с открывающей кавычки</td>
+                            <td><span class="badge badge-info">Вставка</span></td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>E005</td>
+                            <td>Неверный форматный спецификатор</td>
+                            <td>Ожидался '{:f}', получен другой спецификатор</td>
+                            <td><span class="badge badge-warning">Замена</span></td>
+                        </tr>
+                        <tr>
+                            <td>E006</td>
+                            <td>Отсутствует точка</td>
+                            <td>Перед методом format должна быть точка</td>
+                            <td><span class="badge badge-info">Вставка</span></td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>E007</td>
+                            <td>Отсутствует ';'</td>
+                            <td>Каждый оператор должен заканчиваться точкой с запятой</td>
+                            <td><span class="badge badge-info">Вставка</span></td>
+                        </tr>
+                        <tr>
+                            <td>E008</td>
+                            <td>Неверный формат числа</td>
+                            <td>Число имеет неверный формат (например, '123..456')</td>
+                            <td><span class="badge badge-success">Пропуск</span></td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>E009</td>
+                            <td>Отсутствует аргумент</td>
+                            <td>Метод format должен содержать аргумент</td>
+                            <td><span class="badge badge-warning">Замена</span></td>
+                        </tr>
+                        <tr>
+                            <td>E010</td>
+                            <td>Незакрытая строка</td>
+                            <td>Отсутствует закрывающая кавычка</td>
+                            <td><span class="badge badge-success">Пропуск до конца строки</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Алгоритм диагностики -->
+        <div class="card">
+            <h2>⚙️ Алгоритм диагностики ошибок</h2>
+            <div class="code-block">
+                <span class="keyword">function</span> <span class="function">DiagnoseError</span>(state, lexem): ErrorInfo<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">switch</span> (state) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> Start:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Ожидался идентификатор"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> IdRem:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Ожидался символ '='"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> AfterEqual:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Ожидалась открывающая кавычка '\"'"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> Colon:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (lexem.lexemContaintment == <span class="string">"g"</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Неверный форматный спецификатор. Ожидался '{:f}'"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Ожидалась буква 'f'"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> CloseQuote:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Ожидалась закрывающая кавычка и точка перед format"</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// ... остальные состояния</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Синтаксическая ошибка"</span>;<br>
+                }
+            </div>
+        </div>
+
+        <!-- Примеры обработки ошибок -->
+        <div class="card">
+            <h2>🔬 Примеры обработки ошибок</h2>
+            
+            <h3>Пример 1: Недопустимый символ</h3>
+            <div class="trace-example error">
+                <strong>Входная строка:</strong> float_form*at = "{:f}".format(3.234e+4);<br>
+                <strong>Позиция ошибки:</strong> символ '*' на позиции 10<br>
+                <strong>Диагностика:</strong> "Недопустимый символ '*' в идентификаторе"<br>
+                <strong>Действие:</strong> Пропуск символа, анализ продолжен<br>
+                <strong>Результат:</strong> Ошибка зафиксирована, остальной код проанализирован
+            </div>
+
+            <h3>Пример 2: Неверный форматный спецификатор</h3>
+            <div class="trace-example error">
+                <strong>Входная строка:</strong> result = "{:g}".format(-123.456);<br>
+                <strong>Позиция ошибки:</strong> символ 'g' на позиции 12<br>
+                <strong>Диагностика:</strong> "Неверный форматный спецификатор. Ожидался '{:f}'"<br>
+                <strong>Действие:</strong> Замена 'g' на 'f', анализ продолжен<br>
+                <strong>Результат:</strong> Ошибка зафиксирована, остальной код проанализирован
+            </div>
+
+            <h3>Пример 3: Отсутствует точка перед format</h3>
+            <div class="trace-example error">
+                <strong>Входная строка:</strong> temp = "{:f}"format(0.001);<br>
+                <strong>Позиция ошибки:</strong> сразу после закрывающей кавычки<br>
+                <strong>Диагностика:</strong> "Ожидалась точка '.' перед методом format"<br>
+                <strong>Действие:</strong> Вставка точки, анализ продолжен<br>
+                <strong>Результат:</strong> Ошибка зафиксирована, остальной код проанализирован
+            </div>
+
+            <h3>Пример 4: Отсутствует ';' в конце</h3>
+            <div class="trace-example error">
+                <strong>Входная строка:</strong> x = "{:f}".format(5)<br>
+                <strong>Позиция ошибки:</strong> конец строки<br>
+                <strong>Диагностика:</strong> "Отсутствует точка с запятой ';' в конце оператора"<br>
+                <strong>Действие:</strong> Вставка ';', анализ завершён<br>
+                <strong>Результат:</strong> Ошибка зафиксирована
+            </div>
+        </div>
+
+        <!-- Тестовые примеры -->
+        <div class="card">
+            <h2>🧪 Таблица тестовых примеров</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>№</th><th>Входная строка</th><th>Результат</th><th>Описание ошибки</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f0fff4;">
+                            <td>1</td>
+                            <td><code>float_format = "{:f}".format(3.234e+4);</code></td>
+                            <td><span class="badge badge-success">Успех</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr style="background: #f0fff4;">
+                            <td>2</td>
+                            <td><code>result = "{:f}".format(-123.456);</code></td>
+                            <td><span class="badge badge-success">Успех</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>3</td>
+                            <td><code>float_form*at = "{:f}".format(3.234e+4);</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Недопустимый символ '*'</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>4</td>
+                            <td><code>result = "{:g}".format(-123.456);</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Ожидалась буква 'f' в спецификаторе</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>5</td>
+                            <td><code>temp = "{:f}"format(0.001);</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Отсутствует точка перед format</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>6</td>
+                            <td><code>x = "{:f}".format(5)</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Отсутствует ';' в конце</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>7</td>
+                            <td><code>y = "{:f}".format();</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Отсутствует аргумент в format()</td>
+                        </tr>
+                        <tr style="background: #fff5f5;">
+                            <td>8</td>
+                            <td><code>z = "{:f}".format(123..456);</code></td>
+                            <td><span class="badge badge-error">Ошибка</span></td>
+                            <td>Неверный формат числа</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Визуализация обработки ошибки -->
+        <div class="card">
+            <h2>📊 Визуализация процесса обработки ошибки</h2>
+            <div class="code-block">
+                <span class="comment">// Пример: result = "{:g}".format(-123.456);</span><br>
+                <br>
+                ┌─────────────────────────────────────────────────────────────────────────┐<br>
+                │ 1. Обнаружение ошибки                                                  │<br>
+                │    Состояние: Colon, Лексема: 'g'                                      │<br>
+                │    Ожидалось: 'f'                                                      │<br>
+                └─────────────────────────────────────────────────────────────────────────┘<br>
+                                          ↓<br>
+                ┌─────────────────────────────────────────────────────────────────────────┐<br>
+                │ 2. Диагностика                                                         │<br>
+                │    Сообщение: "Неверный форматный спецификатор. Ожидался '{:f}'"       │<br>
+                │    Позиция: строка 1, символ 12                                        │<br>
+                └─────────────────────────────────────────────────────────────────────────┘<br>
+                                          ↓<br>
+                ┌─────────────────────────────────────────────────────────────────────────┐<br>
+                │ 3. Выбор стратегии нейтрализации                                       │<br>
+                │    Тип ошибки: E005 (Неверный форматный спецификатор)                  │<br>
+                │    Стратегия: REPLACE (замена)                                         │<br>
+                └─────────────────────────────────────────────────────────────────────────┘<br>
+                                          ↓<br>
+                ┌─────────────────────────────────────────────────────────────────────────┐<br>
+                │ 4. Выполнение нейтрализации                                            │<br>
+                │    Замена 'g' на 'f'                                                   │<br>
+                │    Текущее состояние: LetterF                                          │<br>
+                └─────────────────────────────────────────────────────────────────────────┘<br>
+                                          ↓<br>
+                ┌─────────────────────────────────────────────────────────────────────────┐<br>
+                │ 5. Продолжение анализа                                                 │<br>
+                │    Анализ продолжается со следующей лексемой                           │<br>
+                └─────────────────────────────────────────────────────────────────────────┘<br>
+            </div>
+        </div>
+
+        <!-- Навигация по ошибкам -->
+        <div class="card">
+            <h2>🎯 Навигация по ошибкам</h2>
+            <p>Разработанный анализатор предоставляет удобные средства для навигации по обнаруженным ошибкам:</p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li>📊 <strong>Таблица ошибок</strong> — все ошибки отображаются в DataGridView с указанием строки, позиции и описания</li>
+                <li>🖱️ <strong>Двойной щелчок</strong> — при двойном щелчке на строке с ошибкой курсор автоматически перемещается к месту ошибки</li>
+                <li>🎨 <strong>Подсветка</strong> — ошибочные фрагменты кода подсвечиваются красным цветом в редакторе</li>
+                <li>📋 <strong>Копирование</strong> — результаты анализа можно скопировать в буфер обмена</li>
+            </ul>
+            
+            <h3>Пример отображения ошибок в интерфейсе:</h3>
+            <div class="error-message">
+                <span class="pos">📍 Ошибка [строка 1, позиция 12]:</span> Неверный форматный спецификатор. Ожидался '{:f}'<br>
+                <span style="font-family: monospace;">result = "{:g}".format(-123.456);</span><br>
+                <span style="color: #e53e3e;">              ^</span>
+            </div>
+        </div>
+
+        <!-- Вывод -->
+        <div class="card">
+            <h2>✅ Вывод</h2>
+            <p>Разработанная система диагностики и нейтрализации синтаксических ошибок на основе метода Айронса обеспечивает:</p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li><strong>Точную диагностику</strong> — каждая ошибка сопровождается понятным описанием</li>
+                <li><strong>Локализацию ошибки</strong> — указание строки и позиции в исходном коде</li>
+                <li><strong>Восстановление после ошибок</strong> — анализ продолжается для обнаружения всех ошибок</li>
+                <li><strong>Удобную навигацию</strong> — переход к месту ошибки по двойному щелчку</li>
+                <li><strong>Визуальную обратную связь</strong> — подсветка ошибочных фрагментов</li>
+            </ul>
+            <br>
+            <p>Данный подход успешно применён в разработанном синтаксическом анализаторе и показывает высокую эффективность при обработке различных типов ошибок.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Лабораторная работа: Разработка лексического и синтаксического анализатора<br>
+            Кафедра АВТ | АВТ-313 | Апрель 2026
+        </div>
+    </div>
+</body>
+</html>

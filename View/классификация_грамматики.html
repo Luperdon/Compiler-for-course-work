@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Классификация грамматики по Хомскому</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Карточка с заголовком */
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .header-card h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header-card .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header-card .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        /* Основные карточки */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        /* Таблицы */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Тип грамматики - большая карточка */
+        .grammar-type {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .grammar-type .type-number {
+            font-size: 4em;
+            font-weight: bold;
+        }
+
+        .grammar-type .type-name {
+            font-size: 1.8em;
+            margin-top: 10px;
+        }
+
+        .grammar-type .type-desc {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        /* Список обоснования */
+        .justification-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .justification-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .justification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            color: #48bb78;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-width: 30px;
+        }
+
+        .rule-example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        /* Таблица сравнения */
+        .comparison-table th, .comparison-table td {
+            text-align: center;
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .yes {
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .no {
+            color: #f56565;
+            font-weight: bold;
+        }
+
+        /* Характеристики - сетка */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .feature-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item strong {
+            color: #2d3748;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.05em;
+        }
+
+        .feature-item span {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        /* Примеры правил */
+        .rule-list {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .rule-list code {
+            display: block;
+            padding: 8px 0;
+            color: #2d3748;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+            font-size: 0.85em;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .header-card h1 {
+                font-size: 1.5em;
+            }
+            .grammar-type .type-name {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header-card">
+            <h1>📊 Классификация грамматики по Хомскому</h1>
+            <div class="subtitle">Разработка лексического и синтаксического анализатора для форматированных строк Python</div>
+            <div class="badge">Вариант 50 | АВТ-313 | Соболев И.О.</div>
+        </div>
+
+        <!-- Тип грамматики (главный) -->
+        <div class="grammar-type">
+            <div class="type-number">Тип 3</div>
+            <div class="type-name">Регулярная грамматика</div>
+            <div class="type-desc">(Right-Linear Regular Grammar)</div>
+        </div>
+
+        <!-- Обоснование -->
+        <div class="card">
+            <h2>📋 Обоснование принадлежности к регулярному типу</h2>
+            <ul class="justification-list">
+                <li>
+                    <span class="check-icon">✓</span>
+                    <span><strong>Левая часть содержит ровно один нетерминальный символ</strong><br>
+                    Все правила имеют вид A → ..., где A — одиночный нетерминал. Пример: <code>&lt;IDREM&gt; → Symbols &lt;IDREM&gt;</code></span>
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    <span><strong>Правила имеют строго ограниченную форму (главный признак)</strong><br>
+                    Только праволинейные правила вида <code>A → aB</code> и терминальные правила вида <code>A → a</code>.<br>
+                    Отсутствуют правила вида <code>A → Ba</code> (леволинейные).</span>
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    <span><strong>Отсутствуют правила с двумя нетерминалами в правой части</strong><br>
+                    Нет правил вида <code>A → B C</code> или <code>A → a B C</code>. Каждое правило содержит не более одного нетерминала, и он всегда находится в конце.</span>
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    <span><strong>Рекурсия только праволинейная (хвостовая)</strong><br>
+                    Допустима только рекурсия вида <code>A → a A</code>. Пример: <code>&lt;INTREM&gt; → digit &lt;INTREM&gt;</code></span>
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    <span><strong>Применение правил не зависит от контекста</strong><br>
+                    Правило можно применить всегда, независимо от окружающих символов.</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Характеристики -->
+        <div class="card">
+            <h2>⚙️ Характеристики грамматики</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <strong>📌 Регулярная (тип 3)</strong>
+                    <span>Соответствует классу регулярных грамматик по иерархии Хомского</span>
+                </div>
+                <div class="feature-item">
+                    <strong>➡️ Праволинейная</strong>
+                    <span>Нетерминал всегда находится в конце правой части правил: A → aB</span>
+                </div>
+                <div class="feature-item">
+                    <strong>🎯 Детерминированная</strong>
+                    <span>Для каждой пары (состояние, входной символ) определён не более одного перехода</span>
+                </div>
+                <div class="feature-item">
+                    <strong>🔍 LL(1)-грамматика</strong>
+                    <span>Возможно построение LL(1)-анализатора (чтение слева направо, один символ вперед)</span>
+                </div>
+                <div class="feature-item">
+                    <strong>🚫 Не леворекурсивная</strong>
+                    <span>Отсутствуют правила вида A → Aα (левая рекурсия)</span>
+                </div>
+                <div class="feature-item">
+                    <strong>🤖 Распознаётся конечным автоматом</strong>
+                    <span>Для синтаксического анализа достаточно конечного автомата без магазинной памяти</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Примеры правил из грамматики -->
+        <div class="card">
+            <h2>📝 Примеры правил из грамматики</h2>
+            <div class="rule-list">
+                <code><span style="color: #e53e3e;">&lt;INTREM&gt;</span> → digit <span style="color: #e53e3e;">&lt;INTREM&gt;</span> &nbsp;&nbsp; <span style="color: #718096;">// праволинейное рекурсивное правило (A → aA)</span></code>
+                <code><span style="color: #e53e3e;">&lt;END&gt;</span> → ';' &nbsp;&nbsp; <span style="color: #718096;">// терминальное правило (A → a)</span></code>
+                <code><span style="color: #e53e3e;">&lt;SCIENTIFIC&gt;</span> → '+' <span style="color: #e53e3e;">&lt;INT&gt;</span> &nbsp;&nbsp; <span style="color: #718096;">// праволинейное правило (A → aB)</span></code>
+                <code><span style="color: #e53e3e;">&lt;IDREM&gt;</span> → Symbols <span style="color: #e53e3e;">&lt;IDREM&gt;</span> &nbsp;&nbsp; <span style="color: #718096;">// праволинейное рекурсивное правило</span></code>
+                <code><span style="color: #e53e3e;">&lt;FORMAT&gt;</span> → 'format' <span style="color: #e53e3e;">&lt;OPEN_ARG&gt;</span> &nbsp;&nbsp; <span style="color: #718096;">// праволинейное правило</span></code>
+            </div>
+        </div>
+
+        <!-- Сравнение с другими типами -->
+        <div class="card">
+            <h2>📊 Сравнение с другими типами грамматик по Хомскому</h2>
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Признак</th><th>Тип 0</th><th>Тип 1</th><th>Тип 2</th><th style="background: #f5576c;">Тип 3 (ваша)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Название</td><td>Неограниченная</td><td>Контекстно-зависимая</td><td>Контекстно-свободная</td><td style="background: #fff5f5;"><strong>Регулярная</strong></td></tr>
+                        <tr><td>Вид правил</td><td>α → β</td><td>αAβ → αγβ</td><td>A → α</td><td style="background: #fff5f5;"><strong>A → aB, A → a</strong></td></tr>
+                        <tr><td>Контекстно-зависимая</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td></tr>
+                        <tr><td>Контекстно-свободная</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td></tr>
+                        <tr><td>Регулярная</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+                        <tr><td>Распознаватель</td><td>Машина Тьюринга</td><td>Линейно ограниченный автомат</td><td>Магазинный автомат</td><td style="background: #fff5f5;"><strong>Конечный автомат</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Отличие от КС-грамматики -->
+        <div class="card">
+            <h2>🔄 Отличие от контекстно-свободной грамматики (тип 2)</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Характеристика</th><th>КС-грамматика (тип 2)</th><th>Регулярная грамматика (тип 3, ваша)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Вид правил</td><td>A → α (любая строка)</td><td>A → aB или A → a</td></tr>
+                        <tr><td>Количество нетерминалов в правой части</td><td>Любое</td><td>Не более одного</td></tr>
+                        <tr><td>Позиция нетерминала в правой части</td><td>Любая</td><td>Только в конце</td></tr>
+                        <tr><td>Пример правила</td><td>A → a B c</td><td>A → a B</td></tr>
+                        <tr><td>Распознаватель</td><td>Магазинный автомат (стек)</td><td>Конечный автомат</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Формальное определение -->
+        <div class="card">
+            <h2>📐 Формальное определение грамматики</h2>
+            <div class="rule-example">
+                <strong>G = (V<sub>N</sub>, V<sub>T</sub>, P, S)</strong><br><br>
+                <strong>V<sub>N</sub></strong> = {START, IDREM, FSTRING, BEGIN_FSTRING, OPEN_SCOBE, COLON, FSYMBOL, CLOSE_SCOBE, END_FSTRING, FORMAT, OPEN_ARG, SCIENTIFIC, INT, INTREM, DECIMAL, DECIMALREM, EXP, EXP_NUM, EXP_NUM_REM}<br><br>
+                <strong>V<sub>T</sub></strong> = {a..z, A..Z, 0..9, _, =, +, -, ., (, ), ;, ", {, :, f, }}<br><br>
+                <strong>P</strong> — множество правил (28 продукций)<br><br>
+                <strong>S</strong> = START
+            </div>
+        </div>
+
+        <!-- Вывод -->
+        <div class="card">
+            <h2>✅ Вывод</h2>
+            <p>Разработанная грамматика относится к <strong>регулярному типу (тип 3)</strong> по классификации Хомского, так как:</p>
+            <ul style="margin-top: 15px; margin-left: 25px; line-height: 1.8;">
+                <li>Все правила имеют вид A → aB или A → a</li>
+                <li>Отсутствуют правила с двумя нетерминалами в правой части</li>
+                <li>Рекурсия допускается только праволинейная (хвостовая)</li>
+                <li>Грамматика может быть распознана конечным автоматом</li>
+            </ul>
+            <p style="margin-top: 15px; padding: 10px; background: #e6fffa; border-radius: 8px;">
+                <strong>📌 Важно:</strong> Регулярная грамматика (тип 3) является подмножеством контекстно-свободных грамматик (тип 2), но имеет более строгие ограничения на форму правил, что позволяет использовать для её распознавания конечный автомат вместо магазинного.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Лабораторная работа: Разработка лексического и синтаксического анализатора<br>
+            Кафедра АВТ | АВТ-313 | Апрель 2026
+        </div>
+    </div>
+</body>
+</html>

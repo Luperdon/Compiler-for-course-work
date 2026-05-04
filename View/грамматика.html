@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Грамматика форматированных строк Python</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .header .author {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .card h3 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        /* Формальное определение */
+        .formal-def {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            margin: 15px 0;
+        }
+
+        .formal-def code {
+            color: #fbbf24;
+        }
+
+        /* Таблицы */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Таблица правил */
+        .rules-table th, .rules-table td {
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+        }
+
+        .rules-table td:first-child {
+            font-weight: bold;
+            color: #e53e3e;
+        }
+
+        /* Множества */
+        .set-box {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-family: 'Consolas', monospace;
+            line-height: 1.8;
+        }
+
+        .set-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        /* Схема автомата */
+        .automaton-diagram {
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Примеры */
+        .example {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .example-bad {
+            background: #fff5f5;
+            border-left-color: #f56565;
+        }
+
+        /* Глоссарий */
+        .glossary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .glossary-item {
+            background: #edf2f7;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+            font-size: 0.85em;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>📖 Грамматика языка форматированных строк</h1>
+            <div class="subtitle">Конструкция вида: идентификатор = "{:f}".format(число);</div>
+            <div class="author">Соболев Илья Олегович | АВТ-313 | Вариант 50</div>
+        </div>
+
+        <!-- Формальное определение -->
+        <div class="card">
+            <h2>📐 Формальное определение грамматики</h2>
+            <div class="formal-def">
+                <strong>G = (V<sub>N</sub>, V<sub>T</sub>, P, S)</strong><br><br>
+                где:<br>
+                • <strong>V<sub>N</sub></strong> — множество нетерминальных символов<br>
+                • <strong>V<sub>T</sub></strong> — множество терминальных символов<br>
+                • <strong>P</strong> — множество продукций (правил вывода)<br>
+                • <strong>S</strong> — начальный символ
+            </div>
+        </div>
+
+        <!-- Множества терминалов и нетерминалов -->
+        <div class="card">
+            <h2>📚 Множества символов</h2>
+            
+            <div class="set-box">
+                <div class="set-title">📌 V<sub>T</sub> — Терминальные символы:</div>
+                <code>VT = { a,b,c,...,z, A,B,C,...,Z, _, =, +, -, ., (, ), ;, 0,1,2,...,9, ", {, :, f, } }</code>
+            </div>
+
+            <div class="set-box">
+                <div class="set-title">🔷 V<sub>N</sub> — Нетерминальные символы:</div>
+                <code>VN = { START, IDREM, FSTRING, BEGIN_FSTRING, OPEN_SCOBE, COLON, FSYMBOL, CLOSE_SCOBE, END_FSTRING, FORMAT, OPEN_ARG, SCIENTIFIC, INT, INTREM, DECIMAL, DECIMALREM, EXP, EXP_NUM, EXP_NUM_REM }</code>
+            </div>
+
+            <div class="set-box">
+                <div class="set-title">🎯 S — Начальный символ:</div>
+                <code>S = START</code>
+            </div>
+        </div>
+
+        <!-- Правила грамматики -->
+        <div class="card">
+            <h2>📜 Правила грамматики (P)</h2>
+            <div class="table-wrapper">
+                <table class="rules-table">
+                    <thead>
+                        <tr><th>№</th><th>Правило</th><th>Описание</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>&lt;START&gt; → IdentifyLetters &lt;IDREM&gt;</td><td>Начало: идентификатор</td></tr>
+                        <tr><td>2</td><td>&lt;IDREM&gt; → Symbols &lt;IDREM&gt;</td><td>Продолжение идентификатора</td></tr>
+                        <tr><td>3</td><td>&lt;IDREM&gt; → '=' &lt;FSTRING&gt;</td><td>Оператор присваивания</td></tr>
+                        <tr><td>4</td><td>&lt;FSTRING&gt; → '"' &lt;BEGIN_FSTRING&gt;</td><td>Открывающая кавычка</td></tr>
+                        <tr><td>5</td><td>&lt;BEGIN_FSTRING&gt; → '{' &lt;OPEN_SCOBE&gt;</td><td>Открывающая фигурная скобка</td></tr>
+                        <tr><td>6</td><td>&lt;OPEN_SCOBE&gt; → ':' &lt;COLON&gt;</td><td>Двоеточие</td></tr>
+                        <tr><td>7</td><td>&lt;COLON&gt; → 'f' &lt;FSYMBOL&gt;</td><td>Буква f</td></tr>
+                        <tr><td>8</td><td>&lt;FSYMBOL&gt; → '}' &lt;CLOSE_SCOBE&gt;</td><td>Закрывающая фигурная скобка</td></tr>
+                        <tr><td>9</td><td>&lt;CLOSE_SCOBE&gt; → '"' &lt;END_FSTRING&gt;</td><td>Закрывающая кавычка</td></tr>
+                        <tr><td>10</td><td>&lt;END_FSTRING&gt; → '.' &lt;FORMAT&gt;</td><td>Точка</td></tr>
+                        <tr><td>11</td><td>&lt;FORMAT&gt; → 'format' &lt;OPEN_ARG&gt;</td><td>Ключевое слово format</td></tr>
+                        <tr><td>12</td><td>&lt;OPEN_ARG&gt; → '(' &lt;SCIENTIFIC&gt;</td><td>Открывающая скобка</td></tr>
+                        <tr><td>13</td><td>&lt;SCIENTIFIC&gt; → '+' &lt;INT&gt;</td><td>Знак + перед числом</td></tr>
+                        <tr><td>14</td><td>&lt;SCIENTIFIC&gt; → '-' &lt;INT&gt;</td><td>Знак - перед числом</td></tr>
+                        <tr><td>15</td><td>&lt;SCIENTIFIC&gt; → digit &lt;INTREM&gt;</td><td>Цифра</td></tr>
+                        <tr><td>16</td><td>&lt;INT&gt; → digit &lt;INTREM&gt;</td><td>Целая часть</td></tr>
+                        <tr><td>17</td><td>&lt;INTREM&gt; → digit &lt;INTREM&gt;</td><td>Продолжение целой части</td></tr>
+                        <tr><td>18</td><td>&lt;INTREM&gt; → 'e' &lt;EXP&gt;</td><td>Экспонента e</td></tr>
+                        <tr><td>19</td><td>&lt;INTREM&gt; → '.' &lt;DECIMAL&gt;</td><td>Десятичная точка</td></tr>
+                        <tr><td>20</td><td>&lt;DECIMAL&gt; → digit &lt;DECIMALREM&gt;</td><td>Дробная часть</td></tr>
+                        <tr><td>21</td><td>&lt;DECIMALREM&gt; → digit &lt;DECIMALREM&gt;</td><td>Продолжение дробной части</td></tr>
+                        <tr><td>22</td><td>&lt;DECIMALREM&gt; → 'e' &lt;EXP&gt;</td><td>Экспонента после точки</td></tr>
+                        <tr><td>23</td><td>&lt;EXP&gt; → '+' &lt;EXP_NUM&gt;</td><td>Знак + экспоненты</td></tr>
+                        <tr><td>24</td><td>&lt;EXP&gt; → '-' &lt;EXP_NUM&gt;</td><td>Знак - экспоненты</td></tr>
+                        <tr><td>25</td><td>&lt;EXP_NUM&gt; → digit &lt;EXP_NUM_REM&gt;</td><td>Цифра экспоненты</td></tr>
+                        <tr><td>26</td><td>&lt;EXP_NUM_REM&gt; → digit &lt;EXP_NUM_REM&gt;</td><td>Продолжение экспоненты</td></tr>
+                        <tr><td>27</td><td>&lt;EXP_NUM_REM&gt; → ')' &lt;END&gt;</td><td>Закрывающая скобка</td></tr>
+                        <tr><td>28</td><td>&lt;END&gt; → ';'</td><td>Точка с запятой</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вспомогательные определения -->
+        <div class="card">
+            <h2>📝 Вспомогательные определения</h2>
+            <div class="set-box">
+                <div class="set-title">🔤 IdentifyLetters (буквы и подчёркивание):</div>
+                <code>IdentifyLetters → 'a'|'b'|'c'|...|'z'|'A'|'B'|'C'|...|'Z'|'_'</code>
+            </div>
+            <div class="set-box">
+                <div class="set-title">🔢 Symbols (буквы, цифры, подчёркивание):</div>
+                <code>Symbols → 'a'|'b'|...|'z'|'A'|'B'|...|'Z'|'1'|'2'|...|'9'|'0'|'_'</code>
+            </div>
+            <div class="set-box">
+                <div class="set-title">🔢 digit (цифры):</div>
+                <code>digit → '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'</code>
+            </div>
+        </div>
+
+        <!-- Классификация по Хомскому -->
+        <div class="card">
+            <h2>🏷️ Классификация грамматики по Хомскому</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+                <span style="font-size: 2em; font-weight: bold;">Тип 3</span><br>
+                <span style="font-size: 1.3em;">Регулярная грамматика (праволинейная)</span>
+            </div>
+            
+            <h3>Обоснование:</h3>
+            <ul style="margin-left: 25px; line-height: 1.8;">
+                <li>Левая часть каждого правила содержит ровно один нетерминальный символ</li>
+                <li>Все правила имеют вид A → aB или A → a (праволинейные)</li>
+                <li>Отсутствуют правила с двумя нетерминалами в правой части</li>
+                <li>Отсутствуют правила вида A → Ba (леволинейные)</li>
+                <li>Рекурсия только праволинейная (хвостовая)</li>
+            </ul>
+
+            <h3>Характеристики:</h3>
+            <div class="glossary">
+                <span class="glossary-item">✅ Праволинейная</span>
+                <span class="glossary-item">✅ Детерминированная</span>
+                <span class="glossary-item">✅ LL(1)-грамматика</span>
+                <span class="glossary-item">✅ Не леворекурсивная</span>
+                <span class="glossary-item">✅ Распознаётся конечным автоматом</span>
+            </div>
+        </div>
+
+        <!-- Схема конечного автомата (текстовое представление) -->
+        <div class="card">
+            <h2>🤖 Схема конечного автомата</h2>
+            <div class="automaton-diagram">
+                ┌─────────┐     ┌─────────┐     ┌──────────┐     ┌───────────┐
+                │  Start  │ ──id──→ │  IdRem  │ ──=──→ │AfterEqual│ ──"──→ │ OpenQuote │
+                └─────────┘     └─────────┘     └──────────┘     └───────────┘
+                                                                       │
+                                                                       ↓ {
+                                                                ┌───────────┐
+                                                                │ OpenBrace │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ :
+                                                                ┌─────────┐
+                                                                │  Colon  │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ f
+                                                                ┌─────────┐
+                                                                │ LetterF │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ }
+                                                                ┌───────────┐
+                                                                │CloseBrace │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ "
+                                                                ┌───────────┐
+                                                                │CloseQuote │
+                                                                └───────────┘
+                                                                       │
+                                                                       ↓ .
+                                                                ┌──────────┐
+                                                                │ AfterDot │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ format
+                                                                ┌─────────┐
+                                                                │ Format  │
+                                                                └─────────┘
+                                                                       │
+                                                                       ↓ (
+                                                                ┌──────────┐
+                                                                │ OpenArg  │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ число
+                                                                ┌──────────┐
+                                                                │InNumber  │←────┐
+                                                                └──────────┘     │
+                                                                       │         │
+                                                                       ↓ число   │
+                                                                ┌──────────┐     │
+                                                                │InNumber  │─────┘
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ )
+                                                                ┌────────────┐
+                                                                │AfterNumber │
+                                                                └────────────┘
+                                                                       │
+                                                                       ↓ )
+                                                                ┌──────────┐
+                                                                │ CloseArg │
+                                                                └──────────┘
+                                                                       │
+                                                                       ↓ ;
+                                                                ┌─────────┐
+                                                                │   End   │
+                                                                └─────────┘
+            </div>
+        </div>
+
+        <!-- Примеры корректных строк -->
+        <div class="card">
+            <h2>✅ Примеры корректных строк</h2>
+            <div class="example">
+                <strong>Пример 1:</strong> float_format = "{:f}".format(3.234e+4);
+            </div>
+            <div class="example">
+                <strong>Пример 2:</strong> result = "{:f}".format(-123.456);
+            </div>
+            <div class="example">
+                <strong>Пример 3:</strong> temp = "{:f}".format(0.001e-5);
+            </div>
+            <div class="example">
+                <strong>Пример 4:</strong> pi = "{:f}".format(3.1415926535);
+            </div>
+            <div class="example">
+                <strong>Пример 5:</strong> value = "{:f}".format(100);
+            </div>
+        </div>
+
+        <!-- Примеры синтаксических ошибок -->
+        <div class="card">
+            <h2>❌ Примеры синтаксических ошибок</h2>
+            <div class="example example-bad">
+                <strong>Ошибка 1 (недопустимый символ):</strong> float_form*at = "{:f}".format(3.234e+4);
+            </div>
+            <div class="example example-bad">
+                <strong>Ошибка 2 (неверный форматный спецификатор):</strong> result = "{:g}".format(-123.456);
+            </div>
+            <div class="example example-bad">
+                <strong>Ошибка 3 (отсутствует точка):</strong> temp = "{:f}"format(0.001);
+            </div>
+            <div class="example example-bad">
+                <strong>Ошибка 4 (отсутствует ';'):</strong> x = "{:f}".format(5)
+            </div>
+            <div class="example example-bad">
+                <strong>Ошибка 5 (отсутствует аргумент):</strong> y = "{:f}".format();
+            </div>
+        </div>
+
+        <!-- Вывод -->
+        <div class="card">
+            <h2>📌 Заключение</h2>
+            <p>Разработанная грамматика описывает конструкцию форматированного вывода в Python с использованием спецификатора <code>{:f}</code> и метода <code>format()</code>. Грамматика содержит <strong>28 правил</strong> и относится к <strong>регулярному типу (тип 3)</strong> по классификации Хомского, что позволяет реализовать её распознавание с помощью конечного автомата.</p>
+            <br>
+            <p><strong>Ключевые особенности грамматики:</strong></p>
+            <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                <li>Поддержка идентификаторов с символом подчёркивания</li>
+                <li>Распознавание целых и вещественных чисел</li>
+                <li>Поддержка чисел с плавающей точкой в экспоненциальной форме (например, 3.234e+4)</li>
+                <li>Обработка положительных и отрицательных чисел</li>
+                <li>Проверка корректности форматного спецификатора {:f}</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Лабораторная работа: Разработка лексического и синтаксического анализатора<br>
+            Кафедра АВТ | АВТ-313 | Апрель 2026
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список литературы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .literature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .literature-list li {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f7fafc;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            line-height: 1.5;
+        }
+
+        .literature-list li:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+            transition: all 0.2s ease;
+        }
+
+        .source-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            text-align: center;
+            line-height: 28px;
+            border-radius: 50%;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .source-text {
+            color: #2d3748;
+        }
+
+        .source-link {
+            color: #667eea;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #718096;
+            font-size: 0.85em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📚 Список литературы</h1>
+
+        <ul class="literature-list">
+            <li>
+                <span class="source-number">1</span>
+                <span class="source-text">
+                    Шорников Ю.В. Теория и практика языковых процессоров: учеб. пособие / Ю.В. Шорников. – Новосибирск: Изд-во НГТУ, 2022.
+                </span>
+            </li>
+
+            <li>
+                <span class="source-number">2</span>
+                <span class="source-text">
+                    Gries D. Designing Compilers for Digital Computers. New York, Jhon Wiley, 1971. 493 p.
+                </span>
+            </li>
+
+            <li>
+                <span class="source-number">3</span>
+                <span class="source-text">
+                    Теория формальных языков и компиляторов [Электронный ресурс]. – URL: 
+                    <a href="https://dispace.edu.nstu.ru/didesk/course/show/8594" class="source-link" target="_blank">
+                        https://dispace.edu.nstu.ru/didesk/course/show/8594
+                    </a> 
+                    (дата обращения: 05.03.2025).
+                </span>
+            </li>
+        </ul>
+
+        <hr>
+
+        <div class="info">
+            Соболев Илья Олегович | АВТ-313 | Вариант 50
+        </div>
+    </div>
+</body>
+</html>

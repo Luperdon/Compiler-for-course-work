@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовые примеры</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2d3748;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        h2 {
+            color: #4a5568;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .test-case {
+            background: #f7fafc;
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .test-header {
+            padding: 12px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .test-header.success {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+        }
+
+        .test-header.error {
+            background: #fff5f5;
+            border-left: 4px solid #f56565;
+        }
+
+        .test-input {
+            padding: 12px 15px;
+            font-family: 'Consolas', monospace;
+            background: #2d3748;
+            color: #e2e8f0;
+            font-size: 0.95em;
+            overflow-x: auto;
+        }
+
+        .test-description {
+            padding: 10px 15px;
+            background: white;
+            font-size: 0.9em;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: normal;
+        }
+
+        .badge.success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .badge.error {
+            background: #f56565;
+            color: white;
+        }
+
+        .badge.warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .summary {
+            margin-top: 25px;
+            padding: 15px;
+            background: #edf2f7;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary .count {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .summary .success-count {
+            color: #48bb78;
+        }
+
+        .summary .error-count {
+            color: #f56565;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .info {
+            margin-top: 20px;
+            color: #718096;
+            font-size: 0.85em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧪 Тестовые примеры</h1>
+
+        <!-- Тест 1: Корректная строка -->
+        <div class="test-case">
+            <div class="test-header success">
+                <span>📝 Тест №1</span>
+                <span class="badge success">✓ УСПЕШНО</span>
+            </div>
+            <div class="test-input">
+                float_format = "{:f}".format(3.234e+4);
+            </div>
+            <div class="test-description">
+                Корректная строка с идентификатором, содержащим подчёркивание, и числом в экспоненциальной форме
+            </div>
+        </div>
+
+        <!-- Тест 2: Корректная строка -->
+        <div class="test-case">
+            <div class="test-header success">
+                <span>📝 Тест №2</span>
+                <span class="badge success">✓ УСПЕШНО</span>
+            </div>
+            <div class="test-input">
+                result = "{:f}".format(-123.456);
+            </div>
+            <div class="test-description">
+                Корректная строка с отрицательным вещественным числом
+            </div>
+        </div>
+
+        <!-- Тест 3: Корректная строка -->
+        <div class="test-case">
+            <div class="test-header success">
+                <span>📝 Тест №3</span>
+                <span class="badge success">✓ УСПЕШНО</span>
+            </div>
+            <div class="test-input">
+                temp = "{:f}".format(0.001e-5);
+            </div>
+            <div class="test-description">
+                Корректная строка с числом в экспоненциальной форме с отрицательным показателем
+            </div>
+        </div>
+
+        <!-- Тест 4: Недопустимый символ -->
+        <div class="test-case">
+            <div class="test-header error">
+                <span>📝 Тест №4</span>
+                <span class="badge error">✗ ОШИБКА</span>
+            </div>
+            <div class="test-input">
+                float_form*at = "{:f}".format(3.234e+4);
+            </div>
+            <div class="test-description">
+                ❌ Ошибка: недопустимый символ '*' в идентификаторе
+            </div>
+        </div>
+
+        <!-- Тест 5: Неверный форматный спецификатор -->
+        <div class="test-case">
+            <div class="test-header error">
+                <span>📝 Тест №5</span>
+                <span class="badge error">✗ ОШИБКА</span>
+            </div>
+            <div class="test-input">
+                result = "{:g}".format(-123.456);
+            </div>
+            <div class="test-description">
+                ❌ Ошибка: неверный форматный спецификатор, ожидался '{:f}'
+            </div>
+        </div>
+
+        <!-- Тест 6: Отсутствует точка -->
+        <div class="test-case">
+            <div class="test-header error">
+                <span>📝 Тест №6</span>
+                <span class="badge error">✗ ОШИБКА</span>
+            </div>
+            <div class="test-input">
+                temp = "{:f}"format(0.001);
+            </div>
+            <div class="test-description">
+                ❌ Ошибка: отсутствует точка '.' перед методом format
+            </div>
+        </div>
+
+        <!-- Тест 7: Отсутствует ';' -->
+        <div class="test-case">
+            <div class="test-header error">
+                <span>📝 Тест №7</span>
+                <span class="badge error">✗ ОШИБКА</span>
+            </div>
+            <div class="test-input">
+                x = "{:f}".format(5)
+            </div>
+            <div class="test-description">
+                ❌ Ошибка: отсутствует точка с запятой ';' в конце оператора
+            </div>
+        </div>
+
+        <!-- Тест 8: Отсутствует аргумент -->
+        <div class="test-case">
+            <div class="test-header error">
+                <span>📝 Тест №8</span>
+                <span class="badge error">✗ ОШИБКА</span>
+            </div>
+            <div class="test-input">
+                y = "{:f}".format();
+            </div>
+            <div class="test-description">
+                ❌ Ошибка: отсутствует аргумент в методе format()
+            </div>
+        </div>
+
+        <!-- Итоги -->
+        <div class="summary">
+            <span>📊 РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ</span><br>
+            <span class="count success-count">3</span> <span>успешных</span>
+            <span style="margin: 0 10px">|</span>
+            <span class="count error-count">5</span> <span>ошибок</span>
+            <span style="margin: 0 10px">|</span>
+            <span class="count">8</span> <span>всего тестов</span>
+        </div>
+
+        <hr>
+
+        <div class="info">
+            Соболев Илья Олегович | АВТ-313 | Вариант 50<br>
+            Всего обнаружено типов ошибок: 5 (недопустимый символ, неверный спецификатор, отсутствие точки, отсутствие ';', отсутствие аргумента)
+        </div>
+    </div>
+</body>
+</html>
