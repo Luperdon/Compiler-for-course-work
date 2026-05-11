@@ -40,7 +40,6 @@ namespace CompilerV2.Presenter
             while (position < lexems.Count)
             {
                 bool statementFailed = false;
-                bool hasAnyErrorInStatement = false;
                 bool skipFormatExpectationOnce = false;
                 ExpectedToken[] sequence = new[]
                 {
@@ -66,8 +65,20 @@ namespace CompilerV2.Presenter
 
                     if (position >= lexems.Count)
                     {
-                        // Одна ошибка: следующая по грамматике лексема отсутствует, без каскада по всей цепочке.
-                        AddMissingTokenError(sequence[expectedIndex]);
+                        // До «=» включительно — одна ошибка (короткий ввод вроде одного идентификатора).
+                        // После начала правой части — фиксируем все недостающие хвостовые лексемы (')', ';' и т.д.).
+                        if (expectedIndex <= (int)ExpectedToken.Assignment)
+                        {
+                            AddMissingTokenError(sequence[expectedIndex]);
+                        }
+                        else
+                        {
+                            for (int ei = expectedIndex; ei < sequence.Length; ei++)
+                            {
+                                AddMissingTokenError(sequence[ei]);
+                            }
+                        }
+
                         statementFailed = true;
                         break;
                     }
@@ -78,24 +89,25 @@ namespace CompilerV2.Presenter
                     {
                         ConsumeInvalidLexemeSequence(ref position, expected, ref skipFormatExpectationOnce);
                         statementFailed = true;
-                        hasAnyErrorInStatement = true;
 
                         // После пропуска мусорной последовательности пробуем снова проверить
                         // ту же ожидаемую лексему, чтобы не сдвигать всю цепочку ожиданий.
                         if (position < lexems.Count && IsExpected(lexems[position], expected))
                         {
                             expectedIndex--;
+                            continue;
                         }
-                        continue;
+
+                        RecoverToStatementBoundary(ref position);
+                        break;
                     }
 
                     if (!IsExpected(currentLexem, expected))
                     {
-                        if (MatchesAnyFollowingExpected(currentLexem, sequence, expectedIndex + 1))
+                        if (MatchesAnyFollowingExpected(currentLexem, sequence, expectedIndex + 1, expectedIndex))
                         {
                             AddMissingTokenError(expected, currentLexem.lexemStartPosition);
                             statementFailed = true;
-                            hasAnyErrorInStatement = true;
                             continue;
                         }
 
@@ -107,7 +119,6 @@ namespace CompilerV2.Presenter
                         AddErrorOnce(currentLexem, $"Ожидалась лексема: {GetExpectedText(expected)}, но получено '{currentLexem.lexemContaintment}'.");
                         position++;
                         statementFailed = true;
-                        hasAnyErrorInStatement = true;
                         continue;
                     }
 
@@ -169,10 +180,24 @@ namespace CompilerV2.Presenter
             ErrorState(null, firstLexem.lexemStartPosition, lastLexem.lexemEndPosition, AppendLineInfo($"Некорректная лексема: '{invalidSequence}'.", invalidLine));
         }
 
-        private bool MatchesAnyFollowingExpected(Lexem lexem, ExpectedToken[] sequence, int startIndex)
+        private bool MatchesAnyFollowingExpected(Lexem lexem, ExpectedToken[] sequence, int startIndex, int mismatchAtExpectedIndex)
         {
             for (int i = startIndex; i < sequence.Length; i++)
             {
+                // Завершающая ';' не считается «якорем» в середине шаблона (например float_format; = ...).
+                if (sequence[i] == ExpectedToken.Semicolon)
+                {
+                    continue;
+                }
+
+                // Точка перед format не может означать «пропущены '=' и строка», пока мы ещё ждём левую часть
+                // присваивания (идентификатор или '=') — иначе «.» внутри идентификатора даёт каскад «не найдено».
+                if (sequence[i] == ExpectedToken.Dot
+                    && mismatchAtExpectedIndex < (int)ExpectedToken.FString)
+                {
+                    continue;
+                }
+
                 if (IsExpected(lexem, sequence[i]))
                 {
                     return true;
