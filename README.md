@@ -68,7 +68,7 @@ F → число | идентификатор | '(' E ')'
 
 Лексический анализатор (`PolizLexer`) реализован в виде конечного автомата. Диаграмма переходов представлена на рисунке ниже.
 
-<img width="582" height="851" alt="Диаграмма лексера 6лаб drawio" src="https://github.com/user-attachments/assets/b32548b4-99d7-4946-9bcf-ac256ea65545" />
+<img width="841" height="601" alt="КАлаб6 drawio" src="https://github.com/user-attachments/assets/13a3f945-045d-4d3d-abe7-8de8fea0b39b" />
 
 **Описание состояний:**
 
@@ -87,7 +87,7 @@ F → число | идентификатор | '(' E ')'
 
 Синтаксический анализатор (`RdParser`) построен по методу рекурсивного спуска с предпросмотром на один токен (LL(1)). Схема взаимных вызовов методов представлена ниже.
 
-<img width="1148" height="669" alt="Схема рекурсивного спуска лаб6 drawio" src="https://github.com/user-attachments/assets/6a039cba-1574-4197-927e-846af6963d31" />
+<img width="1162" height="611" alt="рекурсивный спускV2lab6 drawio" src="https://github.com/user-attachments/assets/f39b5d1f-cfb1-45ba-b355-befdf20e258d" />
 
 **Таблица вызовов методов:**
 ParseE()
